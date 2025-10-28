@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="641.0" prefWidth="688.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.mindsport.mindsportpro.controller.UsuarioController">
+   <children>
+      <SplitPane dividerPositions="0.539906103286385" layoutX="1.0" layoutY="1.0" orientation="VERTICAL" prefHeight="641.0" prefWidth="685.0">
+         <items>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="250.0" prefWidth="865.0">
+               <children>
+                  <TextField fx:id="txtNombreUsuario" layoutX="85.0" layoutY="36.0" prefHeight="25.0" prefWidth="240.0" />
+                  <Button fx:id="btnAgregarUsuario" layoutX="160.0" layoutY="303.0" mnemonicParsing="false" onAction="#onAgregarUsuario" prefHeight="25.0" prefWidth="97.0" text="Agregar" />
+                  <Label layoutX="13.0" layoutY="40.0" text="Nombres:" />
+                  <Label layoutX="26.0" layoutY="124.0" text="Cédula:" />
+                  <Label layoutX="11.0" layoutY="163.0" text="Teléfonos:" />
+                  <Label layoutX="13.0" layoutY="82.0" text="Apellidos:" />
+                  <TextField fx:id="txtApellidoUsuario" layoutX="85.0" layoutY="78.0" prefHeight="25.0" prefWidth="240.0" />
+                  <TextField fx:id="txtTelefonoUsuario" layoutX="85.0" layoutY="159.0" prefHeight="25.0" prefWidth="116.0" />
+                  <TextField fx:id="txtCedulaUsuario" layoutX="85.0" layoutY="119.0" prefHeight="25.0" prefWidth="240.0" />
+                  <Separator layoutY="291.0" prefHeight="5.0" prefWidth="683.0" />
+                  <Button fx:id="btnActualizarUsuario" layoutX="414.0" layoutY="303.0" mnemonicParsing="false" onAction="#onActualizarUsuario" prefHeight="25.0" prefWidth="97.0" text="Actualizar" />
+                  <TextField fx:id="txtCorreoUsuario" layoutX="85.0" layoutY="201.0" prefHeight="25.0" prefWidth="240.0" />
+                  <Label layoutX="27.0" layoutY="205.0" text="Correo:" />
+                  <Label layoutX="1.0" layoutY="1.0" text="Información Usuario" />
+                  <Separator layoutX="-12.0" layoutY="17.0" prefHeight="5.0" prefWidth="880.0" />
+                  <Label layoutX="3.0" layoutY="247.0" text="Contraseña:" />
+                  <TextField fx:id="txtTelefono2Usuario" layoutX="209.0" layoutY="159.0" prefHeight="25.0" prefWidth="116.0" />
+                  <Label layoutX="361.0" layoutY="41.0" text="Genero:" />
+                  <ComboBox fx:id="cbGenero" layoutX="421.0" layoutY="36.0" onAction="#onGenero" prefHeight="25.0" prefWidth="240.0" />
+                  <Label layoutX="382.0" layoutY="82.0" text="Rol:" />
+                  <ComboBox fx:id="cbRol" layoutX="421.0" layoutY="78.0" onAction="#onRol" prefHeight="25.0" prefWidth="240.0" />
+                  <VBox fx:id="vboxCoach" layoutX="374.0" layoutY="111.0" prefHeight="168.0" prefWidth="287.0" visible="false">
+                     <children>
+                        <Label text="id profesional:" />
+                        <TextField fx:id="txtIdProfesional" prefHeight="25.0" prefWidth="554.0" />
+                        <Label text="Especialidad:" />
+                        <TextField fx:id="txtEspecialidad" prefHeight="25.0" prefWidth="246.0" />
+                        <Label text="Centro de trabajo:" />
+                        <TextField fx:id="txtCentroTrabajo" prefHeight="25.0" prefWidth="246.0" />
+                        <Label text="Disponibilidad:" />
+                        <TextField fx:id="txtDisponibilidad" prefHeight="19.0" prefWidth="287.0" />
+                     </children>
+                  </VBox>
+                  <VBox fx:id="vboxAtleta" layoutX="374.0" layoutY="111.0" prefHeight="168.0" prefWidth="287.0" visible="false">
+                     <children>
+                        <Label text="Perfil deportivo:" />
+                        <TextField fx:id="txtPerfilDeportivo" prefHeight="25.0" prefWidth="554.0" />
+                        <Label text="Peso:" />
+                        <TextField fx:id="txtPeso" prefHeight="25.0" prefWidth="246.0" />
+                        <Label text="Altura:" />
+                        <TextField fx:id="txtAltura" prefHeight="25.0" prefWidth="246.0" />
+                        <Label text="Fecha de nacimiento:" />
+                        <DatePicker fx:id="datepFechaNacimiento" prefHeight="25.0" prefWidth="289.0" />
+                     </children>
+                  </VBox>
+                  <PasswordField fx:id="txtContraseñaUsuario" layoutX="86.0" layoutY="243.0" prefHeight="25.0" prefWidth="240.0" />
+               </children>
+            </AnchorPane>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="229.0" prefWidth="683.0">
+               <children>
+                  <TableView fx:id="tableUsuario" layoutX="-1.0" layoutY="69.0" prefHeight="187.0" prefWidth="688.0">
+                     <columns>
+                        <TableColumn fx:id="tcNombreUsuario" prefWidth="203.0" text="Nombre" />
+                        <TableColumn fx:id="tcCedulaUsuario" minWidth="0.0" prefWidth="101.0" text="Cédula" />
+                        <TableColumn fx:id="tcCorreoUsuario" prefWidth="170.0" text="Correo" />
+                        <TableColumn fx:id="tcGeneroUsuario" prefWidth="109.0" text="Género" />
+                        <TableColumn fx:id="tcRolUsuario" prefWidth="104.0" text="Rol" />
+                     </columns>
+                  </TableView>
+                  <Button fx:id="btnEliminarUsuario" layoutX="293.0" layoutY="262.0" mnemonicParsing="false" onAction="#onEliminararUsuario" text="Eliminar cliente" />
+                  <TextField fx:id="txtFiltrarUsuario" layoutX="81.0" layoutY="26.0" prefHeight="25.0" prefWidth="380.0" />
+                  <Label layoutX="16.0" layoutY="30.0" text="Filtrar por:" />
+               </children>
+            </AnchorPane>
+         </items>
+      </SplitPane>
+   </children>
+</AnchorPane>
