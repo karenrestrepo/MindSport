@@ -116,7 +116,7 @@ public class UsuarioController {
 
     @FXML
     private VBox vboxCoach;
-    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private final UsuarioDAO usuarioDAO = UsuarioDAO.getInstancia();
     private final ObservableList<Usuario> listaUsuarios = FXCollections.observableArrayList();
 
     @FXML

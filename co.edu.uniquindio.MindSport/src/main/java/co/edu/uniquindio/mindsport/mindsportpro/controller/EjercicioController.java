@@ -33,7 +33,7 @@ public class EjercicioController {
     @FXML
     private TextField txtTituloEjercicio, txtDescripcionEjercicio, txtDuracionEjercicio, txtFiltrarEjercicio;
 
-    private final EjercicioDAO ejercicioDAO = new EjercicioDAO();
+    private final EjercicioDAO ejercicioDAO = EjercicioDAO.getInstancia();
     private final ObservableList<Ejercicio> listaEjercicios = FXCollections.observableArrayList();
     @FXML
     void onFaseUsoEjercicio(ActionEvent event) {

@@ -8,12 +8,22 @@ import java.util.Optional;
 
 public class UsuarioDAO {
 
+    private static UsuarioDAO instancia;
+
     private final List<Usuario> lista = new ArrayList<>();
     private int seq = 1;
 
-    public UsuarioDAO() {
+    // Constructor privado para evitar instanciación externa
+    private UsuarioDAO() {
         // Opcional: poblar con ejemplos
-        // Ejemplo: lista.add(new Atleta(...));
+    }
+
+    // Método estático para obtener la única instancia
+    public static UsuarioDAO getInstancia() {
+        if (instancia == null) {
+            instancia = new UsuarioDAO();
+        }
+        return instancia;
     }
 
     public List<Usuario> listar() {
@@ -21,9 +31,7 @@ public class UsuarioDAO {
     }
 
     public Usuario crear(Usuario u) {
-        // asignar id secuencial si tus modelos usan Integer id
         try {
-            // si Usuario tiene setId(Integer) lo llamamos; si no, ignora
             java.lang.reflect.Method m = u.getClass().getMethod("setId", Integer.class);
             m.invoke(u, seq++);
         } catch (Exception ignored) { }
@@ -56,7 +64,6 @@ public class UsuarioDAO {
     }
 
     public boolean actualizar(Usuario actualizado) {
-        // busca por id (si tu modelo tiene getId)
         try {
             java.lang.reflect.Method getId = actualizado.getClass().getMethod("getId");
             Object idObj = getId.invoke(actualizado);
@@ -74,7 +81,6 @@ public class UsuarioDAO {
                 } catch (Exception ex) { }
             }
         } catch (Exception e) {
-            // si no hay id, no hacemos actualización compleja; se puede buscar por cédula y reemplazar
             return false;
         }
         return false;
@@ -90,7 +96,8 @@ public class UsuarioDAO {
         return op.isPresent();
     }
 
-    public void borrarTodo() { lista.clear(); }
-
+    public void borrarTodo() {
+        lista.clear();
+        seq = 1;
+    }
 }
-

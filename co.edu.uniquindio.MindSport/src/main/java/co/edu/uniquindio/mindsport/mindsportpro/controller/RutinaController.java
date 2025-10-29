@@ -51,9 +51,9 @@ public class RutinaController {
     @FXML private VBox vboxCoach;
 
     // DAOs
-    private final RutinaDAO rutinaDAO = new RutinaDAO();
-    private final EjercicioDAO ejercicioDAO = new EjercicioDAO();
-    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private final RutinaDAO rutinaDAO = RutinaDAO.getInstancia();
+    private final EjercicioDAO ejercicioDAO = EjercicioDAO.getInstancia();
+    private final UsuarioDAO usuarioDAO = UsuarioDAO.getInstancia();
 
     // Listas observables
     private final ObservableList<Rutina> listaRutinas = FXCollections.observableArrayList();
@@ -78,6 +78,17 @@ public class RutinaController {
         listaEjercicios.setAll(ejercicioDAO.listar());
         listEjerciciosRutina.setItems(listaEjercicios);
         listEjerciciosRutina.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        listEjerciciosRutina.setCellFactory(param -> new javafx.scene.control.ListCell<Ejercicio>() {
+            @Override
+            protected void updateItem(Ejercicio ejercicio, boolean empty) {
+                super.updateItem(ejercicio, empty);
+                if (empty || ejercicio == null) {
+                    setText(null);
+                } else {
+                    setText(ejercicio.getTitulo() + " (" + ejercicio.getDuracion() + " min)");
+                }
+            }
+        });
 
         // Cargar coaches
         List<Coach> coaches = usuarioDAO.listar().stream()
@@ -86,6 +97,29 @@ public class RutinaController {
                 .collect(Collectors.toList());
         listaCoaches.setAll(coaches);
         cbCoach.setItems(listaCoaches);
+        cbCoach.setCellFactory(param -> new javafx.scene.control.ListCell<Coach>() {
+            @Override
+            protected void updateItem(Coach coach, boolean empty) {
+                super.updateItem(coach, empty);
+                if (empty || coach == null) {
+                    setText(null);
+                } else {
+                    setText(coach.getNombres() + " " + coach.getApellidos());
+                }
+            }
+        });
+
+        cbCoach.setButtonCell(new javafx.scene.control.ListCell<Coach>() {
+            @Override
+            protected void updateItem(Coach coach, boolean empty) {
+                super.updateItem(coach, empty);
+                if (empty || coach == null) {
+                    setText(null);
+                } else {
+                    setText(coach.getNombres() + " " + coach.getApellidos());
+                }
+            }
+        });
 
         // Configuración columnas tabla
         tcIdRutina.setCellValueFactory(r -> new SimpleStringProperty(r.getValue().getId() == null ? "" : String.valueOf(r.getValue().getId())));
