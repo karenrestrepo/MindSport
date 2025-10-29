@@ -78,7 +78,7 @@
                         <TableColumn fx:id="tcRolUsuario" prefWidth="104.0" text="Rol" />
                      </columns>
                   </TableView>
-                  <Button fx:id="btnEliminarUsuario" layoutX="293.0" layoutY="262.0" mnemonicParsing="false" onAction="#onEliminararUsuario" text="Eliminar cliente" />
+                  <Button fx:id="btnEliminarUsuario" layoutX="293.0" layoutY="262.0" mnemonicParsing="false" onAction="#onEliminararUsuario" prefHeight="25.0" prefWidth="97.0" text="Eliminar" />
                   <TextField fx:id="txtFiltrarUsuario" layoutX="81.0" layoutY="26.0" prefHeight="25.0" prefWidth="380.0" />
                   <Label layoutX="16.0" layoutY="30.0" text="Filtrar por:" />
                </children>

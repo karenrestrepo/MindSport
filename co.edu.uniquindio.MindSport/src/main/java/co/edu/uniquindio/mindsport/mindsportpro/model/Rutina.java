@@ -1,5 +1,7 @@
 package co.edu.uniquindio.mindsport.mindsportpro.model;
 
+import co.edu.uniquindio.mindsport.mindsportpro.enums.NivelDificultad;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -9,9 +11,8 @@ public class Rutina {
     private Integer idCoach;                  // FK al coach que la creó
     private String titulo;
     private String descripcion;
-    private Integer duracionEstimadaSegundos; // duración estimada en segundos
-    private String nivelDificultad;           // p.ej. "Básico","Intermedio","Avanzado"
-    private List<String> plantillas;          // nombres o rutas de plantillas documentales
+    private Integer duracionEstimada; // duración estimada en segundos
+    private NivelDificultad nivelDificultad;           // p.ej. "Básico","Intermedio","Avanzado"
     private List<Ejercicio> ejercicios = new ArrayList<>();
     private List<Tecnica> tecnicas = new ArrayList<>();
     private boolean publicada = false;
@@ -19,15 +20,14 @@ public class Rutina {
     public Rutina() { }
 
     public Rutina(Integer id, Integer idCoach, String titulo, String descripcion,
-                  Integer duracionEstimadaSegundos, String nivelDificultad,
-                  List<String> plantillas, List<Ejercicio> ejercicios, List<Tecnica> tecnicas, boolean publicada) {
+                  Integer duracionEstimada, NivelDificultad nivelDificultad,
+                  List<Ejercicio> ejercicios, List<Tecnica> tecnicas, boolean publicada) {
         this.id = id;
         this.idCoach = idCoach;
         this.titulo = titulo;
         this.descripcion = descripcion;
-        this.duracionEstimadaSegundos = duracionEstimadaSegundos;
+        this.duracionEstimada = duracionEstimada;
         this.nivelDificultad = nivelDificultad;
-        if (plantillas != null) this.plantillas = plantillas;
         if (ejercicios != null) this.ejercicios = ejercicios;
         if (tecnicas != null) this.tecnicas = tecnicas;
         this.publicada = publicada;
@@ -42,12 +42,10 @@ public class Rutina {
     public void setTitulo(String titulo) { this.titulo = titulo; }
     public String getDescripcion() { return descripcion; }
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-    public Integer getDuracionEstimadaSegundos() { return duracionEstimadaSegundos; }
-    public void setDuracionEstimadaSegundos(Integer duracionEstimadaSegundos) { this.duracionEstimadaSegundos = duracionEstimadaSegundos; }
-    public String getNivelDificultad() { return nivelDificultad; }
-    public void setNivelDificultad(String nivelDificultad) { this.nivelDificultad = nivelDificultad; }
-    public List<String> getPlantillas() { return plantillas; }
-    public void setPlantillas(List<String> plantillas) { this.plantillas = plantillas; }
+    public Integer getDuracionEstimada() { return duracionEstimada; }
+    public void setDuracionEstimada(Integer duracionEstimada) { this.duracionEstimada = duracionEstimada; }
+    public NivelDificultad getNivelDificultad() { return nivelDificultad; }
+    public void setNivelDificultad(NivelDificultad nivelDificultad) { this.nivelDificultad = nivelDificultad; }
     public List<Ejercicio> getEjercicios() { return ejercicios; }
     public void setEjercicios(List<Ejercicio> ejercicios) { this.ejercicios = ejercicios; }
     public List<Tecnica> getTecnicas() { return tecnicas; }
@@ -61,7 +59,7 @@ public class Rutina {
                 "id=" + id +
                 ", idCoach=" + idCoach +
                 ", titulo='" + titulo + '\'' +
-                ", duracionEstimadaSegundos=" + duracionEstimadaSegundos +
+                ", duracionEstimadaSegundos=" + duracionEstimada +
                 ", nivelDificultad='" + nivelDificultad + '\'' +
                 ", ejercicios=" + ejercicios.size() +
                 ", tecnicas=" + tecnicas.size() +

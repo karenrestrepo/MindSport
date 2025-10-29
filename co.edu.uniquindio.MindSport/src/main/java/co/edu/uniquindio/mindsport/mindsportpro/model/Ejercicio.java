@@ -1,47 +1,95 @@
 package co.edu.uniquindio.mindsport.mindsportpro.model;
+import co.edu.uniquindio.mindsport.mindsportpro.enums.FaseUso;
+import co.edu.uniquindio.mindsport.mindsportpro.enums.TipoEjercicio;
+
 import java.util.Objects;
 
 public class Ejercicio {
-    private Integer id;             // identificador del ejercicio
-    private Integer rutinaId;       // FK a la rutina (opcional si se guarda embebido)
-    private Integer orden;          // orden dentro de la rutina (1,2,3...)
-    private String titulo;          // título del ejercicio
-    private String descripcion;     // descripción detallada
-    private Integer duracionSegundos; // duración en segundos
-
+    private Integer id;
+    private Integer rutinaId;
+    private FaseUso faseUso;
+    private String titulo;
+    private String descripcion;
+    private Integer duracion;
+    private TipoEjercicio tipoEjercicio;
     public Ejercicio() { }
 
-    public Ejercicio(Integer id, Integer rutinaId, Integer orden, String titulo,
-                     String descripcion, Integer duracionSegundos) {
+    public Ejercicio(Integer id, Integer rutinaId, FaseUso faseUso, String titulo,
+                     String descripcion, Integer duracion) {
         this.id = id;
         this.rutinaId = rutinaId;
-        this.orden = orden;
+        this.faseUso = faseUso;
         this.titulo = titulo;
         this.descripcion = descripcion;
-        this.duracionSegundos = duracionSegundos;
+        this.duracion = duracion;
     }
 
     // Getters y setters
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
-    public Integer getRutinaId() { return rutinaId; }
-    public void setRutinaId(Integer rutinaId) { this.rutinaId = rutinaId; }
-    public Integer getOrden() { return orden; }
-    public void setOrden(Integer orden) { this.orden = orden; }
-    public String getTitulo() { return titulo; }
-    public void setTitulo(String titulo) { this.titulo = titulo; }
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-    public Integer getDuracionSegundos() { return duracionSegundos; }
-    public void setDuracionSegundos(Integer duracionSegundos) { this.duracionSegundos = duracionSegundos; }
+
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getRutinaId() {
+        return rutinaId;
+    }
+
+    public void setRutinaId(Integer rutinaId) {
+        this.rutinaId = rutinaId;
+    }
+
+    public FaseUso getFaseUso() {
+        return faseUso;
+    }
+
+    public void setFaseUso(FaseUso faseUso) {
+        this.faseUso = faseUso;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public Integer getDuracion() {
+        return duracion;
+    }
+
+    public void setDuracion(Integer duracion) {
+        this.duracion = duracion;
+    }
+
+    public TipoEjercicio getTipoEjercicio() {
+        return tipoEjercicio;
+    }
+
+    public void setTipoEjercicio(TipoEjercicio tipoEjercicio) {
+        this.tipoEjercicio = tipoEjercicio;
+    }
 
     @Override
     public String toString() {
         return "Ejercicio{" +
                 "id=" + id +
-                ", orden=" + orden +
+                ", orden=" + faseUso +
                 ", titulo='" + titulo + '\'' +
-                ", duracionSegundos=" + duracionSegundos +
+                ", duracionSegundos=" + duracion +
                 '}';
     }
 

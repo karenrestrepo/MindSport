@@ -1,14 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="co.edu.uniquindio.mindsport.mindsportpro.controller.RutinaController"
-            prefHeight="400.0" prefWidth="600.0">
-
+<AnchorPane prefHeight="641.0" prefWidth="687.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.mindsport.mindsportpro.controller.RutinaController">
+   <children>
+      <SplitPane dividerPositions="0.4397496087636933" orientation="VERTICAL" prefHeight="641.0" prefWidth="685.0">
+         <items>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="265.0" prefWidth="683.0">
+               <children>
+                  <TextField fx:id="txtTituloRutina" layoutX="85.0" layoutY="39.0" prefHeight="25.0" prefWidth="240.0" />
+                  <Button fx:id="btnAgregarRutina" layoutX="160.0" layoutY="240.0" mnemonicParsing="false" onAction="#onAgregarRutina" prefHeight="25.0" prefWidth="97.0" text="Agregar" />
+                  <Label layoutX="37.0" layoutY="43.0" text="Título:" />
+                  <Label layoutX="19.0" layoutY="91.0" text="Duración:" />
+                  <Label layoutX="341.0" layoutY="35.0" text="Nivel dificultad:" />
+                  <Label layoutX="5.0" layoutY="138.0" text="Descripción:" />
+                  <TextField fx:id="txtDescripcionRutina" layoutX="85.0" layoutY="134.0" prefHeight="25.0" prefWidth="240.0" />
+                  <TextField fx:id="txtDuracionRutina" layoutX="85.0" layoutY="87.0" prefHeight="25.0" prefWidth="240.0" />
+                  <Separator layoutX="-1.0" layoutY="224.0" prefHeight="5.0" prefWidth="683.0" />
+                  <Button fx:id="btnActualizarRutina" layoutX="414.0" layoutY="240.0" mnemonicParsing="false" onAction="#onActualizarRutina" prefHeight="25.0" prefWidth="97.0" text="Actualizar" />
+                  <Label layoutX="1.0" layoutY="1.0" text="Información de la Rutina" />
+                  <Separator layoutX="-12.0" layoutY="17.0" prefHeight="5.0" prefWidth="880.0" />
+                  <ComboBox fx:id="cbDificultadRutina" layoutX="429.0" layoutY="31.0" onAction="#onDificultad" prefHeight="25.0" prefWidth="240.0" />
+                  <Label layoutX="34.0" layoutY="184.0" text="Coach:" />
+                  <ComboBox fx:id="cbCoach" layoutX="85.0" layoutY="180.0" onAction="#onCoach" prefHeight="25.0" prefWidth="240.0" />
+                  <ListView fx:id="listEjerciciosRutina" layoutX="430.0" layoutY="73.0" prefHeight="132.0" prefWidth="240.0" />
+                  <Label layoutX="371.0" layoutY="79.0" text="Ejercicios:" />
+               </children>
+            </AnchorPane>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="229.0" prefWidth="683.0">
+               <children>
+                  <TableView fx:id="tableRutina" layoutX="-1.0" layoutY="69.0" prefHeight="228.0" prefWidth="688.0">
+                     <columns>
+                        <TableColumn fx:id="tcIdRutina" prefWidth="82.0" text="Id" />
+                        <TableColumn fx:id="tcTituloRutina" minWidth="0.0" prefWidth="195.0" text="Título" />
+                        <TableColumn fx:id="tcDuracion" prefWidth="109.0" text="Duración" />
+                        <TableColumn fx:id="tcDificultadRutina" prefWidth="145.0" text="Dificultad" />
+                        <TableColumn fx:id="tcCoachRutina" prefWidth="156.0" text="Coach" />
+                     </columns>
+                  </TableView>
+                  <Button fx:id="btnEliminarRutina" layoutX="293.0" layoutY="316.0" mnemonicParsing="false" onAction="#onEliminararRutina" prefHeight="25.0" prefWidth="97.0" text="Eliminar" />
+                  <TextField fx:id="txtFiltrarRutina" layoutX="81.0" layoutY="22.0" prefHeight="25.0" prefWidth="380.0" />
+                  <Label layoutX="16.0" layoutY="26.0" text="Filtrar por:" />
+               </children>
+            </AnchorPane>
+         </items>
+      </SplitPane>
+   </children>
 </AnchorPane>
