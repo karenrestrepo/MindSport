@@ -112,6 +112,10 @@ public class EjercicioController {
         ejercicioDAO.crear(nuevo);
         refreshTabla();
         limpiarCampos();
+
+        if (controladorPrincipal != null) {
+            controladorPrincipal.notificarCambioEjercicio();
+        }
     }
 
     @FXML
@@ -131,6 +135,10 @@ public class EjercicioController {
         boolean ok = ejercicioDAO.actualizar(seleccionado);
         if (!ok) mostrarAlerta("No fue posible actualizar el ejercicio.");
         refreshTabla();
+
+        if (controladorPrincipal != null) {
+            controladorPrincipal.notificarCambioEjercicio();
+        }
     }
 
     @FXML
@@ -144,6 +152,10 @@ public class EjercicioController {
         ejercicioDAO.eliminar(seleccionado);
         refreshTabla();
         limpiarCampos();
+
+        if (controladorPrincipal != null) {
+            controladorPrincipal.notificarCambioEjercicio();
+        }
     }
 
     // ================= Helpers =================
@@ -184,6 +196,20 @@ public class EjercicioController {
 
     private String safeString(String s) {
         return s == null ? "" : s;
+    }
+
+    private MindSportController controladorPrincipal;
+
+    // Método público para conectar
+    public void setControladorPrincipal(MindSportController controlador) {
+        this.controladorPrincipal = controlador;
+        System.out.println("🔗 EjercicioController conectado al controlador principal");
+    }
+
+    // Método para refrescar datos
+    public void refrescarDatos() {
+        System.out.println("🔄 Refrescando datos en EjercicioController...");
+        refreshTabla();
     }
 }
 

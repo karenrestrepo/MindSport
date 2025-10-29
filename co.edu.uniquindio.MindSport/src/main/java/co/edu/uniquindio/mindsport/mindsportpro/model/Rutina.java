@@ -7,23 +7,23 @@ import java.util.List;
 import java.util.Objects;
 
 public class Rutina {
-    private Integer id;                       // identificador
-    private Integer idCoach;                  // FK al coach que la creó
+    private Integer id;
+    private String cedulaCoach;
     private String titulo;
     private String descripcion;
-    private Integer duracionEstimada; // duración estimada en segundos
-    private NivelDificultad nivelDificultad;           // p.ej. "Básico","Intermedio","Avanzado"
+    private Integer duracionEstimada;
+    private NivelDificultad nivelDificultad;
     private List<Ejercicio> ejercicios = new ArrayList<>();
     private List<Tecnica> tecnicas = new ArrayList<>();
     private boolean publicada = false;
 
     public Rutina() { }
 
-    public Rutina(Integer id, Integer idCoach, String titulo, String descripcion,
+    public Rutina(Integer id, String cedulaCoach, String titulo, String descripcion,
                   Integer duracionEstimada, NivelDificultad nivelDificultad,
                   List<Ejercicio> ejercicios, List<Tecnica> tecnicas, boolean publicada) {
         this.id = id;
-        this.idCoach = idCoach;
+        this.cedulaCoach = cedulaCoach;
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.duracionEstimada = duracionEstimada;
@@ -33,23 +33,30 @@ public class Rutina {
         this.publicada = publicada;
     }
 
-    // Getters y setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
-    public Integer getIdCoach() { return idCoach; }
-    public void setIdCoach(Integer idCoach) { this.idCoach = idCoach; }
+
+    public String getCedulaCoach() { return cedulaCoach; }
+    public void setCedulaCoach(String cedulaCoach) { this.cedulaCoach = cedulaCoach; }
+
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
+
     public String getDescripcion() { return descripcion; }
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+
     public Integer getDuracionEstimada() { return duracionEstimada; }
     public void setDuracionEstimada(Integer duracionEstimada) { this.duracionEstimada = duracionEstimada; }
+
     public NivelDificultad getNivelDificultad() { return nivelDificultad; }
     public void setNivelDificultad(NivelDificultad nivelDificultad) { this.nivelDificultad = nivelDificultad; }
+
     public List<Ejercicio> getEjercicios() { return ejercicios; }
     public void setEjercicios(List<Ejercicio> ejercicios) { this.ejercicios = ejercicios; }
+
     public List<Tecnica> getTecnicas() { return tecnicas; }
     public void setTecnicas(List<Tecnica> tecnicas) { this.tecnicas = tecnicas; }
+
     public boolean isPublicada() { return publicada; }
     public void setPublicada(boolean publicada) { this.publicada = publicada; }
 
@@ -57,12 +64,11 @@ public class Rutina {
     public String toString() {
         return "Rutina{" +
                 "id=" + id +
-                ", idCoach=" + idCoach +
+                ", cedulaCoach='" + cedulaCoach + '\'' +
                 ", titulo='" + titulo + '\'' +
-                ", duracionEstimadaSegundos=" + duracionEstimada +
-                ", nivelDificultad='" + nivelDificultad + '\'' +
-                ", ejercicios=" + ejercicios.size() +
-                ", tecnicas=" + tecnicas.size() +
+                ", duracionEstimada=" + duracionEstimada +
+                ", nivelDificultad=" + nivelDificultad +
+                ", ejercicios=" + (ejercicios != null ? ejercicios.size() : 0) +
                 ", publicada=" + publicada +
                 '}';
     }

@@ -158,6 +158,10 @@ public class UsuarioController {
             usuarioDAO.actualizar(seleccionado);
             refreshTabla();
 
+            if (controladorPrincipal != null) {
+                controladorPrincipal.notificarCambioUsuario();
+            }
+
 
         } catch (Exception ex) {
             mostrarAlerta("No fue posible actualizar: " + ex.getMessage());
@@ -231,6 +235,10 @@ public class UsuarioController {
         refreshTabla();
         limpiarCampos();
 
+        if (controladorPrincipal != null) {
+            controladorPrincipal.notificarCambioUsuario();
+        }
+
     }
 
     @FXML
@@ -240,6 +248,10 @@ public class UsuarioController {
         usuarioDAO.eliminar(sel);
         refreshTabla();
         limpiarCampos();
+
+        if (controladorPrincipal != null) {
+            controladorPrincipal.notificarCambioUsuario();
+        }
     }
 
     @FXML
@@ -435,6 +447,20 @@ public class UsuarioController {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private MindSportController controladorPrincipal;
+
+    // Método público para conectar
+    public void setControladorPrincipal(MindSportController controlador) {
+        this.controladorPrincipal = controlador;
+        System.out.println("🔗 UsuarioController conectado al controlador principal");
+    }
+
+    // Método para refrescar datos cuando se cambia a esta pestaña
+    public void refrescarDatos() {
+        System.out.println("🔄 Refrescando datos en UsuarioController...");
+        refreshTabla();
     }
 
 }

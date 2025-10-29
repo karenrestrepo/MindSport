@@ -7,54 +7,54 @@
 
 <AnchorPane prefHeight="700.0" prefWidth="698.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.mindsport.mindsportpro.controller.MindSportController">
     <children>
-        <TabPane layoutX="8.0" layoutY="8.0" prefHeight="697.0" prefWidth="690.0" tabClosingPolicy="UNAVAILABLE">
+        <TabPane fx:id="tabPane" layoutX="8.0" layoutY="8.0" prefHeight="697.0" prefWidth="690.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
-                <Tab text="Gestión de usuarios">
+                <Tab fx:id="tabUsuarios" text="Gestión de usuarios">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="635.0" prefWidth="695.0">
                             <children>
                                 <SplitPane layoutX="-4.0" layoutY="3.0" orientation="VERTICAL" prefHeight="628.0" prefWidth="689.0">
                                     <items>
-                                        <fx:include source="Usuario.fxml" />
+                                        <fx:include fx:id="usuario" source="Usuario.fxml" />
                                     </items>
                                 </SplitPane>
                             </children>
                         </AnchorPane>
                     </content>
                 </Tab>
-                <Tab text="Rutinas">
+                <Tab fx:id="tabRutinas" text="Rutinas">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
                                 <SplitPane layoutX="-4.0" layoutY="3.0" orientation="VERTICAL" prefHeight="542.0" prefWidth="689.0">
                                     <items>
-                                        <fx:include source="Rutina.fxml" />
+                                        <fx:include fx:id="rutina" source="Rutina.fxml" />
                                     </items>
                                 </SplitPane>
                             </children>
                         </AnchorPane>
                     </content>
                 </Tab>
-                <Tab text="Ejercicios">
+                <Tab fx:id="tabEjercicios" text="Ejercicios">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
                                 <SplitPane layoutX="-4.0" layoutY="3.0" orientation="VERTICAL" prefHeight="542.0" prefWidth="689.0">
                                     <items>
-                                        <fx:include source="Ejercicio.fxml" />
+                                        <fx:include fx:id="ejercicio" source="Ejercicio.fxml" />
                                     </items>
                                 </SplitPane>
                             </children>
                         </AnchorPane>
                     </content>
                 </Tab>
-                <Tab text="Tecnicas">
+                <Tab fx:id="tabTecnicas" text="Tecnicas">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
                                 <SplitPane layoutX="-4.0" layoutY="3.0" orientation="VERTICAL" prefHeight="542.0" prefWidth="689.0">
                                     <items>
-                                        <fx:include source="Tecnica.fxml" />
+                                        <fx:include fx:id="tecnica" source="Tecnica.fxml" />
                                     </items>
                                 </SplitPane>
                             </children>

@@ -7,15 +7,11 @@ import java.util.*;
 public class RutinaDAO {
 
     private static RutinaDAO instancia;
-
     private final Map<Integer, Rutina> almacenamiento = new LinkedHashMap<>();
     private int seq = 1;
 
-    // Constructor privado
-    private RutinaDAO() {
-    }
+    private RutinaDAO() { }
 
-    // Método estático para obtener la única instancia
     public static RutinaDAO getInstancia() {
         if (instancia == null) {
             instancia = new RutinaDAO();
@@ -61,15 +57,12 @@ public class RutinaDAO {
         if (texto == null || texto.trim().isEmpty()) return listar();
         String f = texto.trim().toLowerCase();
 
-        Integer posibleCoachId = null;
-        try { posibleCoachId = Integer.parseInt(f); } catch (NumberFormatException ignored) {}
-
         List<Rutina> resultado = new ArrayList<>();
         for (Rutina r : almacenamiento.values()) {
             boolean matched = false;
             if (r.getTitulo() != null && r.getTitulo().toLowerCase().contains(f)) matched = true;
             if (!matched && r.getDescripcion() != null && r.getDescripcion().toLowerCase().contains(f)) matched = true;
-            if (!matched && posibleCoachId != null && r.getIdCoach() != null && r.getIdCoach().equals(posibleCoachId)) matched = true;
+            if (!matched && r.getCedulaCoach() != null && r.getCedulaCoach().toLowerCase().contains(f)) matched = true;
             if (matched) resultado.add(r);
         }
         return resultado;
