@@ -1,8 +1,6 @@
 package co.edu.uniquindio.mindsport.mindsportpro.controller;
 
-import co.edu.uniquindio.mindsport.mindsportpro.dao.RutinaDAO;
-import co.edu.uniquindio.mindsport.mindsportpro.dao.SesionDAO;
-import co.edu.uniquindio.mindsport.mindsportpro.dao.UsuarioDAO;
+import co.edu.uniquindio.mindsport.mindsportpro.dao.*;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Rutina;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Sesion;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Usuario;
@@ -39,9 +37,9 @@ public class SesionController {
     @FXML private TextArea txtaObservaciones;
 
     // DAOs
-    private final SesionDAO sesionDAO = new SesionDAO();
-    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
-    private final RutinaDAO rutinaDAO = new RutinaDAO();
+    private final SesionDAOJdbc sesionDAO = SesionDAOJdbc.getInstancia();
+    private final UsuarioDAOJdbc usuarioDAO = UsuarioDAOJdbc.getInstancia();
+    private final RutinaDAO rutinaDAO = RutinaDAO.getInstancia();
 
     // listas observables
     private final ObservableList<Sesion> listaSesiones = FXCollections.observableArrayList();

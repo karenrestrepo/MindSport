@@ -1,6 +1,6 @@
 package co.edu.uniquindio.mindsport.mindsportpro.controller;
 
-import co.edu.uniquindio.mindsport.mindsportpro.dao.EjercicioDAO;
+import co.edu.uniquindio.mindsport.mindsportpro.dao.EjercicioDAOJdbc;
 import co.edu.uniquindio.mindsport.mindsportpro.enums.FaseUso;
 import co.edu.uniquindio.mindsport.mindsportpro.enums.TipoEjercicio;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Ejercicio;
@@ -33,7 +33,7 @@ public class EjercicioController {
     @FXML
     private TextField txtTituloEjercicio, txtDescripcionEjercicio, txtDuracionEjercicio, txtFiltrarEjercicio;
 
-    private final EjercicioDAO ejercicioDAO = EjercicioDAO.getInstancia();
+    private final EjercicioDAOJdbc ejercicioDAO = EjercicioDAOJdbc.getInstancia();
     private final ObservableList<Ejercicio> listaEjercicios = FXCollections.observableArrayList();
     @FXML
     void onFaseUsoEjercicio(ActionEvent event) {

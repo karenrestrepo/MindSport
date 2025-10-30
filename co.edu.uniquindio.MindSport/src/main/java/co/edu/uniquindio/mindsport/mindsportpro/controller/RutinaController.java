@@ -1,8 +1,6 @@
 package co.edu.uniquindio.mindsport.mindsportpro.controller;
 
-import co.edu.uniquindio.mindsport.mindsportpro.dao.EjercicioDAO;
-import co.edu.uniquindio.mindsport.mindsportpro.dao.RutinaDAO;
-import co.edu.uniquindio.mindsport.mindsportpro.dao.UsuarioDAO;
+import co.edu.uniquindio.mindsport.mindsportpro.dao.*;
 import co.edu.uniquindio.mindsport.mindsportpro.enums.NivelDificultad;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Ejercicio;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Rutina;
@@ -45,9 +43,10 @@ public class RutinaController {
     @FXML private VBox vboxAtleta;
     @FXML private VBox vboxCoach;
 
-    private final RutinaDAO rutinaDAO = RutinaDAO.getInstancia();
-    private final EjercicioDAO ejercicioDAO = EjercicioDAO.getInstancia();
-    private final UsuarioDAO usuarioDAO = UsuarioDAO.getInstancia();
+    private final RutinaDAOJdbc rutinaDAO = RutinaDAOJdbc.getInstancia();
+
+    private final EjercicioDAOJdbc ejercicioDAO = EjercicioDAOJdbc.getInstancia();
+    private final UsuarioDAOJdbc usuarioDAO = UsuarioDAOJdbc.getInstancia();
 
     private final ObservableList<Rutina> listaRutinas = FXCollections.observableArrayList();
     private final ObservableList<Ejercicio> listaEjercicios = FXCollections.observableArrayList();
