@@ -1,66 +1,55 @@
 package co.edu.uniquindio.mindsport.mindsportpro.model;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class Sesion {
     private Integer id;
-    private Integer usuarioId;          // FK al usuario (deportista)
+    private String cedulaAtleta;          // FK al usuario (Atleta)
     private Integer rutinaId;           // FK a la rutina ejecutada
-    private LocalDateTime fechaHora;    // fecha y hora de la ejecución
-    private Integer duracionRealSegundos;
-    private Double score;               // puntuación / métrica principal
-    private Map<String, Double> metricas = new HashMap<>(); // métricas adicionales
-    private String notasDeportista;
-    private String feedbackCoach;
+    private LocalDate fecha;    // fecha y hora de la ejecución
+    private Integer duracionReal;
+    private Double puntuacion;               // puntuación / métrica principal
+    private String observacionCoach;
 
     public Sesion() { }
 
-    public Sesion(Integer id, Integer usuarioId, Integer rutinaId, LocalDateTime fechaHora,
-                  Integer duracionRealSegundos, Double score, Map<String, Double> metricas,
-                  String notasDeportista, String feedbackCoach) {
+    public Sesion(Integer id, String cedulaAtleta, Integer rutinaId, LocalDate fecha,
+                  Integer duracionReal, Double puntuacion, String observacionCoach) {
         this.id = id;
-        this.usuarioId = usuarioId;
+        this.cedulaAtleta = cedulaAtleta;
         this.rutinaId = rutinaId;
-        this.fechaHora = fechaHora;
-        this.duracionRealSegundos = duracionRealSegundos;
-        this.score = score;
-        if (metricas != null) this.metricas = metricas;
-        this.notasDeportista = notasDeportista;
-        this.feedbackCoach = feedbackCoach;
+        this.fecha = fecha;
+        this.duracionReal = duracionReal;
+        this.puntuacion = puntuacion;
+        this.observacionCoach = observacionCoach;
     }
 
     // Getters y setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
-    public Integer getUsuarioId() { return usuarioId; }
-    public void setUsuarioId(Integer usuarioId) { this.usuarioId = usuarioId; }
+    public String getCedulaAtleta() { return cedulaAtleta; }
+    public void setCedulaAtleta(String cedulaAtleta) { this.cedulaAtleta = cedulaAtleta; }
     public Integer getRutinaId() { return rutinaId; }
     public void setRutinaId(Integer rutinaId) { this.rutinaId = rutinaId; }
-    public LocalDateTime getFechaHora() { return fechaHora; }
-    public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }
-    public Integer getDuracionRealSegundos() { return duracionRealSegundos; }
-    public void setDuracionRealSegundos(Integer duracionRealSegundos) { this.duracionRealSegundos = duracionRealSegundos; }
-    public Double getScore() { return score; }
-    public void setScore(Double score) { this.score = score; }
-    public Map<String, Double> getMetricas() { return metricas; }
-    public void setMetricas(Map<String, Double> metricas) { this.metricas = metricas; }
-    public String getNotasDeportista() { return notasDeportista; }
-    public void setNotasDeportista(String notasDeportista) { this.notasDeportista = notasDeportista; }
-    public String getFeedbackCoach() { return feedbackCoach; }
-    public void setFeedbackCoach(String feedbackCoach) { this.feedbackCoach = feedbackCoach; }
+    public LocalDate getFecha() { return fecha; }
+    public void setFecha(LocalDate fecha) { this.fecha = fecha; }
+    public Integer getDuracionReal() { return duracionReal; }
+    public void setDuracionReal(Integer duracionReal) { this.duracionReal = duracionReal; }
+    public Double getPuntuacion() { return puntuacion; }
+    public void setPuntuacion(Double puntuacion) { this.puntuacion = puntuacion; }
+    public String getObservacionCoach() { return observacionCoach; }
+    public void setObservacionCoach(String observacionCoach) { this.observacionCoach = observacionCoach; }
 
     @Override
     public String toString() {
         return "Sesion{" +
                 "id=" + id +
-                ", usuarioId=" + usuarioId +
+                ", cedulaAtleta=" + cedulaAtleta +
                 ", rutinaId=" + rutinaId +
-                ", fechaHora=" + fechaHora +
-                ", duracionRealSegundos=" + duracionRealSegundos +
-                ", score=" + score +
+                ", fecha=" + fecha +
+                ", duracionReal=" + duracionReal +
+                ", score=" + puntuacion +
                 '}';
     }
 

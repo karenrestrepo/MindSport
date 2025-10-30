@@ -48,13 +48,13 @@
                         </AnchorPane>
                     </content>
                 </Tab>
-                <Tab fx:id="tabTecnicas" text="Tecnicas">
+                <Tab fx:id="tabSesiones" text="Sesiones">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
                                 <SplitPane layoutX="-4.0" layoutY="3.0" orientation="VERTICAL" prefHeight="542.0" prefWidth="689.0">
                                     <items>
-                                        <fx:include fx:id="tecnica" source="Tecnica.fxml" />
+                                        <fx:include fx:id="sesion" source="Sesion.fxml" />
                                     </items>
                                 </SplitPane>
                             </children>

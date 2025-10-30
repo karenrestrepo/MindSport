@@ -14,7 +14,7 @@ public class UsuarioDAO {
     private int seq = 1;
 
     // Constructor privado para evitar instanciación externa
-    private UsuarioDAO() {
+    public UsuarioDAO() {
         // Opcional: poblar con ejemplos
     }
 

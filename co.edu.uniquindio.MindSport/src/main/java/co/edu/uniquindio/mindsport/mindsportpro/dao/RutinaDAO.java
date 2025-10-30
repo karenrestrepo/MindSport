@@ -10,7 +10,7 @@ public class RutinaDAO {
     private final Map<Integer, Rutina> almacenamiento = new LinkedHashMap<>();
     private int seq = 1;
 
-    private RutinaDAO() { }
+    public RutinaDAO() { }
 
     public static RutinaDAO getInstancia() {
         if (instancia == null) {

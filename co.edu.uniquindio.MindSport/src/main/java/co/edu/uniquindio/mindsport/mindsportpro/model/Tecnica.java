@@ -1,15 +1,17 @@
 package co.edu.uniquindio.mindsport.mindsportpro.model;
+import co.edu.uniquindio.mindsport.mindsportpro.enums.AplicabilidadTecnica;
+
 import java.util.Objects;
 
 public class Tecnica {
     private Integer id;
     private String nombre;
     private String descripcion;
-    private String aplicabilidad; // p. ej. "Pre-competición, Entrenamiento, Recuperación"
+    private AplicabilidadTecnica aplicabilidad;
 
     public Tecnica() { }
 
-    public Tecnica(Integer id, String nombre, String descripcion, String aplicabilidad) {
+    public Tecnica(Integer id, String nombre, String descripcion, AplicabilidadTecnica aplicabilidad) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -23,8 +25,8 @@ public class Tecnica {
     public void setNombre(String nombre) { this.nombre = nombre; }
     public String getDescripcion() { return descripcion; }
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-    public String getAplicabilidad() { return aplicabilidad; }
-    public void setAplicabilidad(String aplicabilidad) { this.aplicabilidad = aplicabilidad; }
+    public AplicabilidadTecnica getAplicabilidad() { return aplicabilidad; }
+    public void setAplicabilidad(AplicabilidadTecnica aplicabilidad) { this.aplicabilidad = aplicabilidad; }
 
     @Override
     public String toString() {

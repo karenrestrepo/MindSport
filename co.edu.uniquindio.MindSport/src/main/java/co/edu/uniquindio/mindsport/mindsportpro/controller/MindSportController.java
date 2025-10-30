@@ -1,12 +1,8 @@
 package co.edu.uniquindio.mindsport.mindsportpro.controller;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.layout.AnchorPane;
-
-import java.io.IOException;
 
 public class MindSportController {
 
@@ -25,7 +21,6 @@ public class MindSportController {
     @FXML
     private Tab tabTecnicas;
 
-
     // Controladores inyectados automáticamente por JavaFX cuando usa fx:id en fx:include
     @FXML
     private UsuarioController usuarioController;
@@ -37,7 +32,7 @@ public class MindSportController {
     private EjercicioController ejercicioController;
 
     @FXML
-    private TecnicaController tecnicaController;
+    private SesionController sesionController;
 
     @FXML
     void initialize() {
@@ -79,15 +74,17 @@ public class MindSportController {
             System.err.println("⚠️ EjercicioController no encontrado");
         }
 
-        if (tecnicaController != null) {
-            System.out.println("✓ TecnicaController encontrado");
+        if (sesionController != null) {
+            sesionController.setControladorPrincipal(this);
+            System.out.println("✓ SesionController conectado");
+        } else {
+            System.err.println("⚠️ SesionController no encontrado");
         }
     }
 
     private void onTabChanged(Tab tab) {
         String tabText = tab.getText();
 
-        // Refrescar la pestaña actual cargando datos frescos
         if (tabText.equals("Rutinas")) {
             System.out.println("🔄 Sincronizando datos para Rutinas...");
             notificarCambiosARutinas();
@@ -97,19 +94,28 @@ public class MindSportController {
         } else if (tabText.equals("Gestión de usuarios")) {
             System.out.println("🔄 Sincronizando datos para Usuarios...");
             notificarCambiosAUsuarios();
+        } else if (tabText.equals("Sesiones")) {
+            System.out.println("🔄 Sincronizando datos para Sesiones...");
+            notificarCambiosASesiones();
         }
     }
 
-    // Métodos de notificación cuando hay cambios
+    // ======================================================
+    // 🔔 MÉTODOS DE NOTIFICACIÓN ENTRE CONTROLADORES
+    // ======================================================
+
     public void notificarCambioUsuario() {
-        System.out.println("📢 Notificando cambio en Usuarios a todos los controladores...");
+        System.out.println("📢 Notificando cambio en Usuarios...");
         if (rutinaController != null) {
             rutinaController.actualizarDatosExternos();
+        }
+        if (sesionController != null) {
+            sesionController.actualizarDatosExternos();
         }
     }
 
     public void notificarCambioEjercicio() {
-        System.out.println("📢 Notificando cambio en Ejercicios a todos los controladores...");
+        System.out.println("📢 Notificando cambio en Ejercicios...");
         if (rutinaController != null) {
             rutinaController.actualizarDatosExternos();
         }
@@ -117,10 +123,15 @@ public class MindSportController {
 
     public void notificarCambioRutina() {
         System.out.println("📢 Notificando cambio en Rutinas...");
-        // Si hubiera otros controladores que dependen de rutinas, notificarlos aquí
+        if (sesionController != null) {
+            sesionController.actualizarDatosExternos();
+        }
     }
 
-    // Métodos privados para refrescar cada controlador cuando se cambia a su pestaña
+    // ======================================================
+    // 🔁 REFRESCAR CUANDO SE CAMBIA DE PESTAÑA
+    // ======================================================
+
     private void notificarCambiosAUsuarios() {
         if (usuarioController != null) {
             usuarioController.refrescarDatos();
@@ -138,4 +149,11 @@ public class MindSportController {
             ejercicioController.refrescarDatos();
         }
     }
+
+    private void notificarCambiosASesiones() {
+        if (sesionController != null) {
+            sesionController.refrescarDatos();
+        }
+    }
 }
+
