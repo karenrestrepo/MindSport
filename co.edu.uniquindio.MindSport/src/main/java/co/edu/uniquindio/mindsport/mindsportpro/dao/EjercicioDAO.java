@@ -1,7 +1,9 @@
 package co.edu.uniquindio.mindsport.mindsportpro.dao;
 
 import co.edu.uniquindio.mindsport.mindsportpro.model.Ejercicio;
+import co.edu.uniquindio.mindsport.mindsportpro.util.DBUtil;
 
+import java.sql.*;
 import java.util.*;
 
 public class EjercicioDAO {
@@ -25,9 +27,39 @@ public class EjercicioDAO {
 
     public Ejercicio crear(Ejercicio ejercicio) {
         if (ejercicio == null) return null;
-        ejercicio.setId(seq++);
-        almacenamiento.put(ejercicio.getId(), ejercicio);
-        return ejercicio;
+
+        String sql = "INSERT INTO Ejercicio (idModulo, titulo, descripcion, tipo, duracionMin, requiereAudio, urlAudio) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) { // Ejecuta la query y Le dice "devuélveme el ID que generes"
+
+            ps.setObject(1, 1);
+            ps.setObject(2, ejercicio.getTitulo()); //setObject maneja los null automaticamente
+            ps.setObject(3, ejercicio.getDescripcion());
+            ps.setObject(4, "Fuerza");
+            ps.setObject(5, ejercicio.getDuracion());
+            ps.setObject(6, 1);
+            ps.setObject(7, "https://music.youtube.com/watch?v=YihT5dlwqdw");
+            /*ps.setObject(4, ejercicio.getFaseUso() != null ? ejercicio.getFaseUso().name() : null); //para los enums si o si hay que usar un ternario ya que puede ser null y name no existiria
+            ps.setObject(5, ejercicio.getTipoEjercicio() != null ? ejercicio.getTipoEjercicio().name() : null);
+            ps.setObject(6, ejercicio.getRutinaId());*/
+
+            ps.executeUpdate();
+
+            // Obtener ID generado
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                ejercicio.setId(rs.getInt(1));
+            }
+            rs.close();
+
+            return ejercicio;
+
+        } catch (SQLException e) {
+            System.err.println("Error al crear ejercicio: " + e.getMessage());
+            return null;
+        }
     }
 
     public List<Ejercicio> listar() {

@@ -32,11 +32,11 @@
             <version>${javafx.version}</version>
         </dependency>
 
-        <!-- Microsoft JDBC Driver for SQL Server -->
+        <!-- MariaDB JDBC Driver -->
         <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>mssql-jdbc</artifactId>
-            <version>11.2.0.jre17</version>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <version>3.3.2</version>
         </dependency>
 
         <dependency>

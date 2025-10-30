@@ -1,6 +1,7 @@
 module co.edu.uniquindio.mindsport.mindsportpro {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.sql;
 
 
     opens co.edu.uniquindio.mindsport.mindsportpro to javafx.fxml;
