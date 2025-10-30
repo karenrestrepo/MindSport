@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import co.edu.uniquindio.mindsport.mindsportpro.dao.UsuarioDAO;
+import co.edu.uniquindio.mindsport.mindsportpro.dao.UsuarioDAOJdbc;
 import co.edu.uniquindio.mindsport.mindsportpro.enums.Genero;
 import co.edu.uniquindio.mindsport.mindsportpro.enums.Rol;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Atleta;
@@ -116,7 +116,7 @@ public class UsuarioController {
 
     @FXML
     private VBox vboxCoach;
-    private final UsuarioDAO usuarioDAO = UsuarioDAO.getInstancia();
+    private final UsuarioDAOJdbc usuarioDAO = UsuarioDAOJdbc.getInstancia();
     private final ObservableList<Usuario> listaUsuarios = FXCollections.observableArrayList();
 
     @FXML
