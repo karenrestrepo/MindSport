@@ -32,13 +32,10 @@ public class UsuarioDAOJdbc {
         String correo = rs.getString("correo");
         String generoStr = rs.getString("genero");
         String contrasena = rs.getString("contrasena");
-        String rolStr = rs.getString("rol");
+        int rolCodigo = rs.getInt("idRol");
 
-        // Instanciar según rol (si rol es nulo o desconocido, instanciamos Usuario genérico si existe clase)
-        Rol rol = null;
-        if (rolStr != null) {
-            try { rol = Rol.valueOf(rolStr); } catch (Exception ignored) {}
-        }
+        // Instanciar según rol
+        Rol rol = Rol.fromCodigo(rolCodigo);
 
         Usuario u;
         if (rol == Rol.ATLETA) {
@@ -87,7 +84,7 @@ public class UsuarioDAOJdbc {
     /** LISTAR todos los usuarios (y mapear hijos y telefonos). */
     public List<Usuario> listar() {
         List<Usuario> lista = new ArrayList<>();
-        String sql = "SELECT cedula, nombres, apellidos, correo, genero, contrasena, rol FROM Usuario";
+        String sql = "SELECT cedula, nombres, apellidos, correo, genero, contrasena, idRol FROM Usuario";
         try (Connection cn = DBUtil.getConnection();
              PreparedStatement ps = cn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -108,7 +105,7 @@ public class UsuarioDAOJdbc {
 
     /** Crear usuario + hijo (Atleta/Coach) + telefonos en una transacción */
     public Usuario crear(Usuario u) {
-        String insertUsuario = "INSERT INTO Usuario (cedula, nombres, apellidos, correo, genero, contrasena, rol) VALUES (?,?,?,?,?,?,?)";
+        String insertUsuario = "INSERT INTO Usuario (cedula, nombres, apellidos, correo, genero, contrasena, idRol) VALUES (?,?,?,?,?,?,?)";
         try (Connection cn = DBUtil.getConnection()) {
             cn.setAutoCommit(false);
             try (PreparedStatement ps = cn.prepareStatement(insertUsuario)) {
@@ -124,12 +121,20 @@ public class UsuarioDAOJdbc {
                 } catch (Exception ignored) {}
                 ps.setString(5, genero);
                 ps.setString(6, u.getContrasena());
-                String rol = null;
+
+                Integer rolCodigo = null;
                 try {
                     Object r = u.getClass().getMethod("getRol").invoke(u);
-                    rol = (r != null) ? r.toString() : null;
+                    if (r instanceof Rol) {
+                        rolCodigo = ((Rol) r).getCodigo();
+                    }
                 } catch (Exception ignored) {}
-                ps.setString(7, rol);
+
+                if (rolCodigo != null) {
+                    ps.setInt(7, rolCodigo);
+                } else {
+                    ps.setNull(7, java.sql.Types.INTEGER);
+                }
 
                 ps.executeUpdate();
             }
@@ -137,7 +142,7 @@ public class UsuarioDAOJdbc {
             // insertar fila en tabla hija según rol
             if (u instanceof Atleta) {
                 Atleta a = (Atleta) u;
-                String sqlA = "INSERT INTO Atleta (cedula, perfil_deportivo, peso, altura, fecha_nacimiento) VALUES (?,?,?,?,?)";
+                String sqlA = "INSERT INTO Atleta (cedula, idPerfilAtleta, pesoKg, alturaM, fechaNacimiento) VALUES (?,?,?,?,?)";
                 try (PreparedStatement ps = cn.prepareStatement(sqlA)) {
                     ps.setString(1, a.getCedula());
                     ps.setString(2, a.getPerfilDeportivo());
@@ -190,7 +195,7 @@ public class UsuarioDAOJdbc {
 
     /** Actualizar usuario + hijo + telefonos (transacción). */
     public boolean actualizar(Usuario u) {
-        String updUsuario = "UPDATE Usuario SET nombres=?, apellidos=?, correo=?, genero=?, contrasena=?, rol=? WHERE cedula=?";
+        String updUsuario = "UPDATE Usuario SET nombres=?, apellidos=?, correo=?, genero=?, contrasena=?, idRol=? WHERE cedula=?";
         try (Connection cn = DBUtil.getConnection()) {
             cn.setAutoCommit(false);
 
@@ -218,7 +223,7 @@ public class UsuarioDAOJdbc {
 
             if (u instanceof Atleta) {
                 Atleta a = (Atleta) u;
-                String sqlA = "INSERT INTO Atleta (cedula, perfil_deportivo, peso, altura, fecha_nacimiento) VALUES (?,?,?,?,?)";
+                String sqlA = "INSERT INTO Atleta (cedula, idPerfilAtleta, pesoKg, alturaM, fechaNacimiento) VALUES (?,?,?,?,?)";
                 try (PreparedStatement ps = cn.prepareStatement(sqlA)) {
                     ps.setString(1, a.getCedula());
                     ps.setString(2, a.getPerfilDeportivo());
@@ -310,7 +315,7 @@ public class UsuarioDAOJdbc {
 
     /** Buscar por cédula */
     public Optional<Usuario> buscarPorCedula(String cedula) {
-        String sql = "SELECT cedula, nombres, apellidos, correo, genero, contrasena, rol FROM Usuario WHERE cedula = ?";
+        String sql = "SELECT cedula, nombres, apellidos, correo, genero, contrasena, idRol FROM Usuario WHERE cedula = ?";
         try (Connection cn = DBUtil.getConnection();
              PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setString(1, cedula);
@@ -333,17 +338,17 @@ public class UsuarioDAOJdbc {
         String cedula = u.getCedula();
         try (Connection cn = DBUtil.getConnection()) {
             // comprobar si es Atleta
-            try (PreparedStatement ps = cn.prepareStatement("SELECT perfil_deportivo, peso, altura, fecha_nacimiento FROM Atleta WHERE cedula = ?")) {
+            try (PreparedStatement ps = cn.prepareStatement("SELECT fechaNacimiento, pesoKg, alturaM, fechaNacimiento FROM Atleta WHERE cedula = ?")) {
                 ps.setString(1, cedula);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next() && u instanceof Atleta) {
                         Atleta a = (Atleta) u;
-                        a.setPerfilDeportivo(rs.getString("perfil_deportivo"));
-                        double peso = rs.getDouble("peso");
+                        a.setPerfilDeportivo(rs.getString("idPerfilAtleta"));
+                        double peso = rs.getDouble("pesoKg");
                         if (!rs.wasNull()) a.setPeso(peso);
-                        double altura = rs.getDouble("altura");
+                        double altura = rs.getDouble("alturaM");
                         if (!rs.wasNull()) a.setAltura(altura);
-                        Date fn = rs.getDate("fecha_nacimiento");
+                        Date fn = rs.getDate("fechaNacimiento");
                         if (fn != null) a.setFechaNacimiento(fn.toLocalDate());
                     }
                 }

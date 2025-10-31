@@ -7,6 +7,7 @@ import co.edu.uniquindio.mindsport.mindsportpro.model.Rutina;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Usuario;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Coach;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -115,7 +116,8 @@ public class RutinaController {
             }
         });
 
-        System.out.println("✅ RutinaController inicializado");
+        // NO CARGAR DATOS AQUÍ - Esperar a que se llame refrescarDatos()
+        System.out.println("✅ RutinaController inicializado (sin cargar datos aún)");
     }
 
     private void configurarColumnas() {
@@ -182,16 +184,38 @@ public class RutinaController {
     // Método llamado cuando se cambia a esta pestaña
     public void refrescarDatos() {
         System.out.println("🔄 Refrescando datos en RutinaController...");
-        cargarEjercicios();
-        cargarCoaches();
-        cargarRutinas();
+        actualizarDatosExternos();
     }
 
-    // Método llamado cuando hay cambios externos (en usuarios o ejercicios)
+    // Método actualizar datos externos optimizado
     public void actualizarDatosExternos() {
         System.out.println("🔄 Actualizando datos externos en RutinaController...");
-        cargarEjercicios();
-        cargarCoaches();
+
+        // Cargar ejercicios
+        List<Ejercicio> ejercicios = ejercicioDAO.listar();
+        Platform.runLater(() -> {
+            listaEjercicios.setAll(ejercicios);
+            listEjerciciosRutina.setItems(listaEjercicios);
+            System.out.println("   ✓ Ejercicios cargados: " + ejercicios.size());
+        });
+
+        // Cargar coaches
+        List<Coach> coaches = usuarioDAO.listar().stream()
+                .filter(u -> u instanceof Coach)
+                .map(u -> (Coach) u)
+                .collect(Collectors.toList());
+        Platform.runLater(() -> {
+            listaCoaches.setAll(coaches);
+            cbCoach.setItems(listaCoaches);
+            System.out.println("   ✓ Coaches cargados: " + coaches.size());
+        });
+
+        // Cargar rutinas
+        List<Rutina> rutinas = rutinaDAO.listar();
+        Platform.runLater(() -> {
+            listaRutinas.setAll(rutinas);
+            System.out.println("   ✓ Rutinas cargadas: " + rutinas.size());
+        });
     }
 
     private void cargarEjercicios() {

@@ -1,6 +1,9 @@
 package co.edu.uniquindio.mindsport.mindsportpro.controller;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
@@ -19,9 +22,9 @@ public class MindSportController {
     private Tab tabEjercicios;
 
     @FXML
-    private Tab tabTecnicas;
+    private Tab tabSesiones;
 
-    // Controladores inyectados automáticamente por JavaFX cuando usa fx:id en fx:include
+    // Controladores inyectados
     @FXML
     private UsuarioController usuarioController;
 
@@ -34,14 +37,25 @@ public class MindSportController {
     @FXML
     private SesionController sesionController;
 
+    // Flags para carga lazy
+    private boolean usuariosCargados = false;
+    private boolean rutinasCargadas = false;
+    private boolean ejerciciosCargados = false;
+    private boolean sesionesCargadas = false;
+
+    // Flags para cambios pendientes
+    private boolean cambiosUsuarios = false;
+    private boolean cambiosEjercicios = false;
+    private boolean cambiosRutinas = false;
+
     @FXML
     void initialize() {
-        System.out.println("🚀 Inicializando MindSportController (Controlador Central)...");
+        System.out.println("🚀 Inicializando MindSportController...");
 
-        // Conectar controladores hijos al principal
+        // Conectar controladores
         conectarControladores();
 
-        // Listener para detectar cambios de pestaña
+        // Listener para cambios de pestaña
         tabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
             if (newTab != null) {
                 System.out.println("📑 Cambiando a pestaña: " + newTab.getText());
@@ -56,104 +70,135 @@ public class MindSportController {
         if (usuarioController != null) {
             usuarioController.setControladorPrincipal(this);
             System.out.println("✓ UsuarioController conectado");
-        } else {
-            System.err.println("⚠️ UsuarioController no encontrado");
         }
 
         if (rutinaController != null) {
             rutinaController.setControladorPrincipal(this);
             System.out.println("✓ RutinaController conectado");
-        } else {
-            System.err.println("⚠️ RutinaController no encontrado");
         }
 
         if (ejercicioController != null) {
             ejercicioController.setControladorPrincipal(this);
             System.out.println("✓ EjercicioController conectado");
-        } else {
-            System.err.println("⚠️ EjercicioController no encontrado");
         }
 
         if (sesionController != null) {
             sesionController.setControladorPrincipal(this);
             System.out.println("✓ SesionController conectado");
-        } else {
-            System.err.println("⚠️ SesionController no encontrado");
         }
     }
 
     private void onTabChanged(Tab tab) {
         String tabText = tab.getText();
 
-        if (tabText.equals("Rutinas")) {
-            System.out.println("🔄 Sincronizando datos para Rutinas...");
-            notificarCambiosARutinas();
+        if (tabText.equals("Gestión de usuarios")) {
+            if (!usuariosCargados) {
+                cargarDatosAsync(() -> {
+                    if (usuarioController != null) {
+                        usuarioController.refrescarDatos();
+                    }
+                    usuariosCargados = true;
+                }, "Usuarios");
+            }
+        } else if (tabText.equals("Rutinas")) {
+            if (!rutinasCargadas || cambiosUsuarios || cambiosEjercicios) {
+                cargarDatosAsync(() -> {
+                    if (rutinaController != null) {
+                        rutinaController.actualizarDatosExternos();
+                    }
+                    rutinasCargadas = true;
+                    cambiosUsuarios = false;
+                    cambiosEjercicios = false;
+                }, "Rutinas");
+            }
         } else if (tabText.equals("Ejercicios")) {
-            System.out.println("🔄 Sincronizando datos para Ejercicios...");
-            notificarCambiosAEjercicios();
-        } else if (tabText.equals("Gestión de usuarios")) {
-            System.out.println("🔄 Sincronizando datos para Usuarios...");
-            notificarCambiosAUsuarios();
+            if (!ejerciciosCargados) {
+                cargarDatosAsync(() -> {
+                    if (ejercicioController != null) {
+                        ejercicioController.refrescarDatos();
+                    }
+                    ejerciciosCargados = true;
+                }, "Ejercicios");
+            }
         } else if (tabText.equals("Sesiones")) {
-            System.out.println("🔄 Sincronizando datos para Sesiones...");
-            notificarCambiosASesiones();
+            if (!sesionesCargadas || cambiosUsuarios || cambiosRutinas) {
+                cargarDatosAsync(() -> {
+                    if (sesionController != null) {
+                        sesionController.actualizarDatosExternos();
+                    }
+                    sesionesCargadas = true;
+                    cambiosUsuarios = false;
+                    cambiosRutinas = false;
+                }, "Sesiones");
+            }
         }
     }
 
+    /**
+     * Carga datos en segundo plano mostrando cursor de espera
+     * @param cargaTask Tarea de carga a ejecutar
+     * @param nombreSeccion Nombre de la sección para logging
+     */
+    private void cargarDatosAsync(Runnable cargaTask, String nombreSeccion) {
+        // Cambiar cursor a "espera"
+        if (tabPane.getScene() != null) {
+            tabPane.getScene().setCursor(Cursor.WAIT);
+        }
+
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                System.out.println("⏳ Cargando " + nombreSeccion + "...");
+                cargaTask.run();
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                // Restaurar cursor normal
+                Platform.runLater(() -> {
+                    if (tabPane.getScene() != null) {
+                        tabPane.getScene().setCursor(Cursor.DEFAULT);
+                    }
+                    System.out.println("✅ " + nombreSeccion + " cargados correctamente");
+                });
+            }
+
+            @Override
+            protected void failed() {
+                // Restaurar cursor normal incluso si hay error
+                Platform.runLater(() -> {
+                    if (tabPane.getScene() != null) {
+                        tabPane.getScene().setCursor(Cursor.DEFAULT);
+                    }
+                    System.err.println("❌ Error al cargar " + nombreSeccion + ": " + getException().getMessage());
+                    getException().printStackTrace();
+                });
+            }
+        };
+
+        // Ejecutar en un thread separado
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
     // ======================================================
-    // 🔔 MÉTODOS DE NOTIFICACIÓN ENTRE CONTROLADORES
+    // MÉTODOS DE NOTIFICACIÓN
     // ======================================================
 
     public void notificarCambioUsuario() {
-        System.out.println("📢 Notificando cambio en Usuarios...");
-        if (rutinaController != null) {
-            rutinaController.actualizarDatosExternos();
-        }
-        if (sesionController != null) {
-            sesionController.actualizarDatosExternos();
-        }
+        System.out.println("📢 Marcando cambios en Usuarios...");
+        cambiosUsuarios = true;
     }
 
     public void notificarCambioEjercicio() {
-        System.out.println("📢 Notificando cambio en Ejercicios...");
-        if (rutinaController != null) {
-            rutinaController.actualizarDatosExternos();
-        }
+        System.out.println("📢 Marcando cambios en Ejercicios...");
+        cambiosEjercicios = true;
     }
 
     public void notificarCambioRutina() {
-        System.out.println("📢 Notificando cambio en Rutinas...");
-        if (sesionController != null) {
-            sesionController.actualizarDatosExternos();
-        }
-    }
-
-    // ======================================================
-    // 🔁 REFRESCAR CUANDO SE CAMBIA DE PESTAÑA
-    // ======================================================
-
-    private void notificarCambiosAUsuarios() {
-        if (usuarioController != null) {
-            usuarioController.refrescarDatos();
-        }
-    }
-
-    private void notificarCambiosARutinas() {
-        if (rutinaController != null) {
-            rutinaController.refrescarDatos();
-        }
-    }
-
-    private void notificarCambiosAEjercicios() {
-        if (ejercicioController != null) {
-            ejercicioController.refrescarDatos();
-        }
-    }
-
-    private void notificarCambiosASesiones() {
-        if (sesionController != null) {
-            sesionController.refrescarDatos();
-        }
+        System.out.println("📢 Marcando cambios en Rutinas...");
+        cambiosRutinas = true;
     }
 }
-

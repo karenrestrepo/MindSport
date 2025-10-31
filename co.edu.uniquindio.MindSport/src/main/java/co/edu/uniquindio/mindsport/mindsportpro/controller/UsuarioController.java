@@ -12,6 +12,7 @@ import co.edu.uniquindio.mindsport.mindsportpro.enums.Rol;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Atleta;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Coach;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Usuario;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -460,7 +461,10 @@ public class UsuarioController {
     // Método para refrescar datos cuando se cambia a esta pestaña
     public void refrescarDatos() {
         System.out.println("🔄 Refrescando datos en UsuarioController...");
-        refreshTabla();
+        List<Usuario> usuarios = usuarioDAO.listar();
+        Platform.runLater(() -> {
+            listaUsuarios.setAll(usuarios);
+        });
     }
 
 }

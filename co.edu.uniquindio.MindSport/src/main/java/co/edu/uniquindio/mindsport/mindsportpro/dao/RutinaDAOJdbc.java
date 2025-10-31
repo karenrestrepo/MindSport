@@ -20,6 +20,7 @@ public class RutinaDAOJdbc {
         return instancia;
     }
 
+
     /**
      * Crea una rutina y sus relaciones con ejercicios (tabla Rutina_Ejercicio).
      * Realiza todo en una transacción.
@@ -59,6 +60,7 @@ public class RutinaDAOJdbc {
     }
 
     /** Lista todas las rutinas, cargando también sus ejercicios asociados. */
+    // Método optimizado para listar sin cargar ejercicios
     public List<Rutina> listar() {
         List<Rutina> lista = new ArrayList<>();
         String sql = "SELECT id, cedulaCoach, titulo, descripcion, duracionEstimada, nivelDificultad, publicada FROM Rutina ORDER BY id";
@@ -67,9 +69,8 @@ public class RutinaDAOJdbc {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                Rutina r = mapRow(rs);
-                cargarEjerciciosEnRutina(cn, r);
-                lista.add(r);
+                lista.add(mapRow(rs));
+                // NO cargar ejercicios aquí
             }
         } catch (SQLException e) {
             e.printStackTrace();

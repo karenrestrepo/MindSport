@@ -4,6 +4,7 @@ import co.edu.uniquindio.mindsport.mindsportpro.dao.EjercicioDAOJdbc;
 import co.edu.uniquindio.mindsport.mindsportpro.enums.FaseUso;
 import co.edu.uniquindio.mindsport.mindsportpro.enums.TipoEjercicio;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Ejercicio;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,6 +13,8 @@ import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+
+import java.util.List;
 
 public class EjercicioController {
 
@@ -209,7 +212,10 @@ public class EjercicioController {
     // Método para refrescar datos
     public void refrescarDatos() {
         System.out.println("🔄 Refrescando datos en EjercicioController...");
-        refreshTabla();
+        List<Ejercicio> ejercicios = ejercicioDAO.listar();
+        Platform.runLater(() -> {
+            listaEjercicios.setAll(ejercicios);
+        });
     }
 }
 

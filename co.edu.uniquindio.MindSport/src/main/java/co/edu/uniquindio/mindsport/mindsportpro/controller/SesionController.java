@@ -6,6 +6,7 @@ import co.edu.uniquindio.mindsport.mindsportpro.model.Sesion;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Usuario;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Atleta;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -39,7 +40,7 @@ public class SesionController {
     // DAOs
     private final SesionDAOJdbc sesionDAO = SesionDAOJdbc.getInstancia();
     private final UsuarioDAOJdbc usuarioDAO = UsuarioDAOJdbc.getInstancia();
-    private final RutinaDAO rutinaDAO = RutinaDAO.getInstancia();
+    private final RutinaDAOJdbc rutinaDAO = RutinaDAOJdbc.getInstancia();
 
     // listas observables
     private final ObservableList<Sesion> listaSesiones = FXCollections.observableArrayList();
@@ -51,7 +52,65 @@ public class SesionController {
 
     @FXML
     void initialize() {
-        // cargar combos: atletas y rutinas
+        // ============================================
+        // CONFIGURAR COMBOBOX DE ATLETA
+        // ============================================
+        cbAtleta.setCellFactory(param -> new ListCell<Atleta>() {
+            @Override
+            protected void updateItem(Atleta atleta, boolean empty) {
+                super.updateItem(atleta, empty);
+                if (empty || atleta == null) {
+                    setText(null);
+                } else {
+                    setText(atleta.getNombres() + " " + atleta.getApellidos() + " - CC: " + atleta.getCedula());
+                }
+            }
+        });
+
+        cbAtleta.setButtonCell(new ListCell<Atleta>() {
+            @Override
+            protected void updateItem(Atleta atleta, boolean empty) {
+                super.updateItem(atleta, empty);
+                if (empty || atleta == null) {
+                    setText(null);
+                } else {
+                    setText(atleta.getNombres() + " " + atleta.getApellidos());
+                }
+            }
+        });
+
+        // ============================================
+        // CONFIGURAR COMBOBOX DE RUTINA
+        // ============================================
+        cbRutina.setCellFactory(param -> new ListCell<Rutina>() {
+            @Override
+            protected void updateItem(Rutina rutina, boolean empty) {
+                super.updateItem(rutina, empty);
+                if (empty || rutina == null) {
+                    setText(null);
+                } else {
+                    String duracion = rutina.getDuracionEstimada() != null ?
+                            " (" + rutina.getDuracionEstimada() + " min)" : "";
+                    setText(rutina.getTitulo() + duracion);
+                }
+            }
+        });
+
+        cbRutina.setButtonCell(new ListCell<Rutina>() {
+            @Override
+            protected void updateItem(Rutina rutina, boolean empty) {
+                super.updateItem(rutina, empty);
+                if (empty || rutina == null) {
+                    setText(null);
+                } else {
+                    setText(rutina.getTitulo());
+                }
+            }
+        });
+
+        // ============================================
+        // CARGAR DATOS INICIALES
+        // ============================================
         List<Atleta> atletas = usuarioDAO.listar().stream()
                 .filter(u -> u instanceof Atleta)
                 .map(u -> (Atleta) u)
@@ -62,56 +121,116 @@ public class SesionController {
         listaRutinas.setAll(rutinaDAO.listar());
         cbRutina.setItems(listaRutinas);
 
-        // configurar columnas de la tabla
-        tcIdSesion.setCellValueFactory(s -> new SimpleStringProperty(s.getValue().getId() == null ? "" : String.valueOf(s.getValue().getId())));
+        // ============================================
+        // CONFIGURAR COLUMNAS DE LA TABLA
+        // ============================================
+        tcIdSesion.setCellValueFactory(s -> new SimpleStringProperty(
+                s.getValue().getId() == null ? "" : String.valueOf(s.getValue().getId())
+        ));
+
         tcAtleta.setCellValueFactory(s -> {
             String ced = s.getValue().getCedulaAtleta();
             String nombre = "";
             if (ced != null) {
-                Usuario u = usuarioDAO.listar().stream().filter(x -> ced.equals(x.getCedula())).findFirst().orElse(null);
-                if (u != null) nombre = u.getNombres() + " " + u.getApellidos();
+                Usuario u = usuarioDAO.listar().stream()
+                        .filter(x -> ced.equals(x.getCedula()))
+                        .findFirst()
+                        .orElse(null);
+                if (u != null) {
+                    nombre = u.getNombres() + " " + u.getApellidos();
+                }
             }
             return new SimpleStringProperty(nombre);
         });
+
         tcRutina.setCellValueFactory(s -> {
             Integer idRut = s.getValue().getRutinaId();
             String t = "";
             if (idRut != null) {
-                Rutina r = rutinaDAO.listar().stream().filter(x -> idRut.equals(x.getId())).findFirst().orElse(null);
+                Rutina r = rutinaDAO.listar().stream()
+                        .filter(x -> idRut.equals(x.getId()))
+                        .findFirst()
+                        .orElse(null);
                 if (r != null) t = r.getTitulo();
             }
             return new SimpleStringProperty(t);
         });
-        tcFecha.setCellValueFactory(s -> new SimpleStringProperty(s.getValue().getFecha() == null ? "" : s.getValue().getFecha().toString()));
-        tcDuracion.setCellValueFactory(s -> new SimpleStringProperty(s.getValue().getDuracionReal() == null ? "" : String.valueOf(s.getValue().getDuracionReal())));
-        tcScore.setCellValueFactory(s -> new SimpleStringProperty(s.getValue().getPuntuacion() == null ? "" : String.valueOf(s.getValue().getPuntuacion())));
-        tcObservaciones.setCellValueFactory(s -> new SimpleStringProperty(s.getValue().getObservacionCoach() == null ? "" : s.getValue().getObservacionCoach()));
 
-        // cargar datos
+        tcFecha.setCellValueFactory(s -> new SimpleStringProperty(
+                s.getValue().getFecha() == null ? "" : s.getValue().getFecha().toString()
+        ));
+
+        tcDuracion.setCellValueFactory(s -> new SimpleStringProperty(
+                s.getValue().getDuracionReal() == null ? "" : String.valueOf(s.getValue().getDuracionReal())
+        ));
+
+        tcScore.setCellValueFactory(s -> new SimpleStringProperty(
+                s.getValue().getPuntuacion() == null ? "" : String.valueOf(s.getValue().getPuntuacion())
+        ));
+
+        tcObservaciones.setCellValueFactory(s -> new SimpleStringProperty(
+                s.getValue().getObservacionCoach() == null ? "" : s.getValue().getObservacionCoach()
+        ));
+
+        // ============================================
+        // CARGAR DATOS EN LA TABLA
+        // ============================================
         refreshTabla();
 
-        // seleccion -> cargar formulario
+        // ============================================
+        // LISTENER PARA SELECCIÓN EN TABLA
+        // ============================================
         tableSesion.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) cargarSesionEnFormulario(newSel);
         });
 
-        // filtro dinámico
+        // ============================================
+        // FILTRO DINÁMICO
+        // ============================================
         FilteredList<Sesion> filteredData = new FilteredList<>(listaSesiones, p -> true);
         txtFiltrarSesion.textProperty().addListener((obs, oldVal, newVal) -> {
             filteredData.setPredicate(s -> {
                 if (newVal == null || newVal.isEmpty()) return true;
                 String f = newVal.toLowerCase();
-                // buscar por cedulaAtleta, titulo rutina, fecha o observaciones
-                if (s.getCedulaAtleta() != null && s.getCedulaAtleta().toLowerCase().contains(f)) return true;
-                if (s.getFecha() != null && s.getFecha().toString().contains(f)) return true;
-                if (s.getObservacionCoach() != null && s.getObservacionCoach().toLowerCase().contains(f)) return true;
+
+                // Buscar por cédula atleta
+                if (s.getCedulaAtleta() != null && s.getCedulaAtleta().toLowerCase().contains(f))
+                    return true;
+
+                // Buscar por fecha
+                if (s.getFecha() != null && s.getFecha().toString().contains(f))
+                    return true;
+
+                // Buscar por observaciones
+                if (s.getObservacionCoach() != null && s.getObservacionCoach().toLowerCase().contains(f))
+                    return true;
+
+                // Buscar por título de rutina
                 if (s.getRutinaId() != null) {
-                    Rutina r = rutinaDAO.listar().stream().filter(x -> s.getRutinaId().equals(x.getId())).findFirst().orElse(null);
-                    if (r != null && r.getTitulo() != null && r.getTitulo().toLowerCase().contains(f)) return true;
+                    Rutina r = rutinaDAO.listar().stream()
+                            .filter(x -> s.getRutinaId().equals(x.getId()))
+                            .findFirst()
+                            .orElse(null);
+                    if (r != null && r.getTitulo() != null && r.getTitulo().toLowerCase().contains(f))
+                        return true;
                 }
+
+                // Buscar por nombre de atleta
+                if (s.getCedulaAtleta() != null) {
+                    Usuario u = usuarioDAO.listar().stream()
+                            .filter(x -> s.getCedulaAtleta().equals(x.getCedula()))
+                            .findFirst()
+                            .orElse(null);
+                    if (u != null) {
+                        String nombreCompleto = (u.getNombres() + " " + u.getApellidos()).toLowerCase();
+                        if (nombreCompleto.contains(f)) return true;
+                    }
+                }
+
                 return false;
             });
         });
+
         SortedList<Sesion> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(tableSesion.comparatorProperty());
         tableSesion.setItems(sortedData);
@@ -232,23 +351,39 @@ public class SesionController {
 
     // llamado por el controlador principal cuando hay cambios externos (usuarios/rutinas/ejercicios)
     public void actualizarDatosExternos() {
-        // recargar listas fuente
+        System.out.println("🔄 Actualizando datos externos en SesionController...");
+
+        // Cargar atletas
         List<Atleta> atletas = usuarioDAO.listar().stream()
                 .filter(u -> u instanceof Atleta)
                 .map(u -> (Atleta) u)
                 .collect(Collectors.toList());
-        listaAtletas.setAll(atletas);
-        cbAtleta.setItems(listaAtletas);
+        Platform.runLater(() -> {
+            listaAtletas.setAll(atletas);
+            cbAtleta.setItems(listaAtletas);
+            System.out.println("   ✓ Atletas cargados: " + atletas.size());
+        });
 
-        listaRutinas.setAll(rutinaDAO.listar());
-        cbRutina.setItems(listaRutinas);
+        // Cargar rutinas
+        List<Rutina> rutinas = rutinaDAO.listar();
+        Platform.runLater(() -> {
+            listaRutinas.setAll(rutinas);
+            cbRutina.setItems(listaRutinas);
+            System.out.println("   ✓ Rutinas cargadas: " + rutinas.size());
+        });
 
-        refreshTabla();
+        // Cargar sesiones
+        List<Sesion> sesiones = sesionDAO.listar();
+        Platform.runLater(() -> {
+            listaSesiones.setAll(sesiones);
+            System.out.println("   ✓ Sesiones cargadas: " + sesiones.size());
+        });
     }
 
     public void refrescarDatos() {
-        // alias para consistencia con otros controladores
+        System.out.println("🔄 Refrescando datos en SesionController...");
         actualizarDatosExternos();
     }
+
 }
 
