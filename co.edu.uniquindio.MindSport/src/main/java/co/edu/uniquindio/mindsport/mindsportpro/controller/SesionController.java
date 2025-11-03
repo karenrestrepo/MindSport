@@ -39,7 +39,7 @@ public class SesionController {
     // DAOs
     private final SesionDAOJdbc sesionDAO = SesionDAOJdbc.getInstancia();
     private final UsuarioDAOJdbc usuarioDAO = UsuarioDAOJdbc.getInstancia();
-    private final RutinaDAO rutinaDAO = RutinaDAO.getInstancia();
+    private final RutinaDAOJdbc rutinaDAO = RutinaDAOJdbc.getInstancia();
 
     // listas observables
     private final ObservableList<Sesion> listaSesiones = FXCollections.observableArrayList();
@@ -244,11 +244,6 @@ public class SesionController {
         cbRutina.setItems(listaRutinas);
 
         refreshTabla();
-    }
-
-    public void refrescarDatos() {
-        // alias para consistencia con otros controladores
-        actualizarDatosExternos();
     }
 }
 

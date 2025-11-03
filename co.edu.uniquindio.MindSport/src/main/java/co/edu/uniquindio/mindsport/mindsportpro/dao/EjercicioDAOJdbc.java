@@ -120,58 +120,6 @@ public class EjercicioDAOJdbc {
         }
     }
 
-    /**
-     * Filtrar por texto en título o descripción (LIKE). Si texto es numérico intenta buscar por id.
-     */
-    public List<Ejercicio> filtrar(String texto) {
-        if (texto == null || texto.trim().isEmpty()) return listar();
-        String f = "%" + texto.trim().toLowerCase() + "%";
-        List<Ejercicio> lista = new ArrayList<>();
-
-        // Si es un número, primero intentar búsqueda por id exacto
-        try {
-            int posibleId = Integer.parseInt(texto.trim());
-            buscarPorId(posibleId).ifPresent(lista::add);
-        } catch (NumberFormatException ignored) {}
-
-        String sql = "SELECT id, faseUso, titulo, descripcion, duracion, tipoEjercicio FROM Ejercicio " +
-                "WHERE LOWER(titulo) LIKE ? OR LOWER(descripcion) LIKE ? ORDER BY id";
-        try (Connection cn = DBUtil.getConnection();
-             PreparedStatement ps = cn.prepareStatement(sql)) {
-            ps.setString(1, f);
-            ps.setString(2, f);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    lista.add(mapRow(rs));
-                }
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-        return lista;
-    }
-
-    /**
-     * Si tu modelo tiene campo rutinaId, mantengo el método. Si no usas rutinas, puedes ignorarlo.
-     * Esto asume que la tabla Ejercicio tiene columna rutina_id (INT) — si no existe, quita este método.
-     */
-    public List<Ejercicio> listarPorRutina(Integer rutinaId) {
-        if (rutinaId == null) return new ArrayList<>();
-        List<Ejercicio> lista = new ArrayList<>();
-        String sql = "SELECT id, faseUso, titulo, descripcion, duracion, tipoEjercicio FROM Ejercicio WHERE rutina_id = ? ORDER BY id";
-        try (Connection cn = DBUtil.getConnection();
-             PreparedStatement ps = cn.prepareStatement(sql)) {
-            ps.setInt(1, rutinaId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) lista.add(mapRow(rs));
-            }
-        } catch (SQLException ex) {
-            // Si la columna rutina_id no existe en tu DDL, esto fallará: en ese caso elimina/ignora este método.
-            ex.printStackTrace();
-        }
-        return lista;
-    }
-
     // ---------------- helper ----------------
     private Ejercicio mapRow(ResultSet rs) throws SQLException {
         Ejercicio e = new Ejercicio();

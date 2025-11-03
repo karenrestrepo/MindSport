@@ -1,8 +1,6 @@
 package co.edu.uniquindio.mindsport.mindsportpro.model;
 
 import co.edu.uniquindio.mindsport.mindsportpro.enums.Genero;
-import co.edu.uniquindio.mindsport.mindsportpro.enums.Rol;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -16,14 +14,14 @@ public abstract class Usuario {
     private String contrasena;
     private List<String> telefonos;
     private LocalDateTime fechaRegistro;
-    private Rol rol;
+    private Integer rol;
 
     public Usuario(){
         this.fechaRegistro = LocalDateTime.now();
     }
 
     public Usuario(String cedula,String nombres, String apellidos, String correo, Genero genero, String contrasena,
-                   List<String> telefonos, LocalDateTime fechaRegistro, Rol rol) {
+                   List<String> telefonos, LocalDateTime fechaRegistro, Integer rol) {
         this.cedula = cedula;
         this.nombres = nombres;
         this.apellidos = apellidos;
@@ -99,11 +97,11 @@ public abstract class Usuario {
         this.fechaRegistro = fechaRegistro;
     }
 
-    public Rol getRol() {
+    public Integer getRol() {
         return rol;
     }
 
-    public void setRol(Rol rol) {
+    public void setRol(Integer rol) {
         this.rol = rol;
     }
 

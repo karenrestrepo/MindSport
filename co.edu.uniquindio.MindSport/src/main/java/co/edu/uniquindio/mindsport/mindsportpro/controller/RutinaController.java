@@ -115,6 +115,9 @@ public class RutinaController {
             }
         });
 
+        cargarEjercicios();
+        cargarCoaches();
+        cargarRutinas();
         System.out.println("✅ RutinaController inicializado");
     }
 
@@ -179,14 +182,6 @@ public class RutinaController {
         System.out.println("🔗 RutinaController conectado al controlador principal");
     }
 
-    // Método llamado cuando se cambia a esta pestaña
-    public void refrescarDatos() {
-        System.out.println("🔄 Refrescando datos en RutinaController...");
-        cargarEjercicios();
-        cargarCoaches();
-        cargarRutinas();
-    }
-
     // Método llamado cuando hay cambios externos (en usuarios o ejercicios)
     public void actualizarDatosExternos() {
         System.out.println("🔄 Actualizando datos externos en RutinaController...");
@@ -197,6 +192,7 @@ public class RutinaController {
     private void cargarEjercicios() {
         List<Ejercicio> ejercicios = ejercicioDAO.listar();
         listaEjercicios.setAll(ejercicios);
+        listEjerciciosRutina.setItems(listaEjercicios);  // ← AGREGAR ESTA LÍNEA
         System.out.println("   ✓ Ejercicios cargados: " + ejercicios.size());
     }
 

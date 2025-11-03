@@ -151,42 +151,6 @@ public class RutinaDAOJdbc {
             return false;
         }
     }
-
-    /** Filtra por título, descripción o id (comportamiento similar al DAO en memoria). */
-    public List<Rutina> filtrar(String texto) {
-        if (texto == null || texto.trim().isEmpty()) return listar();
-        String f = "%" + texto.trim().toLowerCase() + "%";
-        List<Rutina> resultado = new ArrayList<>();
-
-        // Si texto es número, intentar búsqueda por id primero
-        try {
-            int posibleId = Integer.parseInt(texto.trim());
-            buscarPorId(posibleId).ifPresent(resultado::add);
-        } catch (NumberFormatException ignored) {}
-
-        String sql = "SELECT id, cedulaCoach, titulo, descripcion, duracionEstimada, nivelDificultad, publicada FROM Rutina " +
-                "WHERE LOWER(titulo) LIKE ? OR LOWER(descripcion) LIKE ? OR LOWER(cedulacoach) LIKE ? ORDER BY id";
-        try (Connection cn = DBUtil.getConnection();
-             PreparedStatement ps = cn.prepareStatement(sql)) {
-            ps.setString(1, f);
-            ps.setString(2, f);
-            ps.setString(3, f);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Rutina r = mapRow(rs);
-                    cargarEjerciciosEnRutina(cn, r);
-                    // evitar duplicados si ya agregó por id
-                    if (resultado.stream().noneMatch(x -> x.getId() != null && x.getId().equals(r.getId()))) {
-                        resultado.add(r);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return resultado;
-    }
-
     // -------- helpers privados --------
 
     private Rutina mapRow(ResultSet rs) throws SQLException {

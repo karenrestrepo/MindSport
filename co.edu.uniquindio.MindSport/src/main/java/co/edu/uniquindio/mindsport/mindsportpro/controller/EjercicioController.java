@@ -206,11 +206,6 @@ public class EjercicioController {
         System.out.println("🔗 EjercicioController conectado al controlador principal");
     }
 
-    // Método para refrescar datos
-    public void refrescarDatos() {
-        System.out.println("🔄 Refrescando datos en EjercicioController...");
-        refreshTabla();
-    }
 }
 
 

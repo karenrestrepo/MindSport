@@ -1,7 +1,6 @@
 package co.edu.uniquindio.mindsport.mindsportpro.model;
 
 import co.edu.uniquindio.mindsport.mindsportpro.enums.Genero;
-import co.edu.uniquindio.mindsport.mindsportpro.enums.Rol;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,10 +17,12 @@ public class Atleta extends Usuario{
 
     public Atleta() {
         super();
-        this.setRol(Rol.ATLETA);
+        this.setRol(1);  // ← 1 = ATLETA
     }
 
-    public Atleta(String id, String nombres, String apellidos, String correo, Genero genero, String contrasena, List<String> telefonos, LocalDateTime fechaRegistro, Rol rol, String perfilDeportivo, double peso, double altura, LocalDate fechaNacimiento, List<Sesion> historialSesiones, List<Logro> listaLogros) {
+    public Atleta(String id, String nombres, String apellidos, String correo, Genero genero, String contrasena,
+                  List<String> telefonos, LocalDateTime fechaRegistro, Integer rol, String perfilDeportivo,
+                  double peso, double altura, LocalDate fechaNacimiento, List<Sesion> historialSesiones, List<Logro> listaLogros) {
         super(id, nombres, apellidos, correo, genero, contrasena, telefonos, fechaRegistro, rol);
         this.perfilDeportivo = perfilDeportivo;
         this.peso = peso;

@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import co.edu.uniquindio.mindsport.mindsportpro.dao.RolDAOJdbc;
 import co.edu.uniquindio.mindsport.mindsportpro.dao.UsuarioDAOJdbc;
 import co.edu.uniquindio.mindsport.mindsportpro.enums.Genero;
-import co.edu.uniquindio.mindsport.mindsportpro.enums.Rol;
+import co.edu.uniquindio.mindsport.mindsportpro.model.Rol;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Atleta;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Coach;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Usuario;
@@ -116,31 +117,30 @@ public class UsuarioController {
 
     @FXML
     private VBox vboxCoach;
+
     private final UsuarioDAOJdbc usuarioDAO = UsuarioDAOJdbc.getInstancia();
+    private final RolDAOJdbc rolDAO = RolDAOJdbc.getInstancia();
     private final ObservableList<Usuario> listaUsuarios = FXCollections.observableArrayList();
+    private final ObservableList<Rol> listaRoles = FXCollections.observableArrayList();
 
     @FXML
     void onActualizarUsuario(ActionEvent event) {
         Usuario seleccionado = tableUsuario.getSelectionModel().getSelectedItem();
         if (seleccionado == null) { mostrarAlerta("Seleccione un usuario para actualizar."); return; }
 
-        // construir objeto actualizado (podrías actualizar el mismo objeto)
-        // para simplicidad actualizamos el objeto seleccionado directamente
         try {
             seleccionado.setNombres(txtNombreUsuario.getText().trim());
             seleccionado.setApellidos(txtApellidoUsuario.getText().trim());
             seleccionado.setCedula(txtCedulaUsuario.getText().trim());
             seleccionado.setCorreo(txtCorreoUsuario.getText().trim());
             seleccionado.setContrasena(txtContraseñaUsuario.getText().trim());
-            // genero
             tryInvokeSetter(seleccionado, "setGenero", new Class[]{Genero.class}, new Object[]{cbGenero.getValue()});
-            // telefonos
+
             List<String> telefonos = new ArrayList<>();
             if (!txtTelefonoUsuario.getText().trim().isEmpty()) telefonos.add(txtTelefonoUsuario.getText().trim());
             if (!txtTelefono2Usuario.getText().trim().isEmpty()) telefonos.add(txtTelefono2Usuario.getText().trim());
             tryInvokeSetter(seleccionado, "setTelefonos", new Class[]{List.class}, new Object[]{telefonos});
 
-            // si es Atleta actualizamos campos propios
             if (seleccionado instanceof Atleta) {
                 Atleta a = (Atleta) seleccionado;
                 a.setPerfilDeportivo(txtPerfilDeportivo.getText().trim());
@@ -162,11 +162,9 @@ public class UsuarioController {
                 controladorPrincipal.notificarCambioUsuario();
             }
 
-
         } catch (Exception ex) {
             mostrarAlerta("No fue posible actualizar: " + ex.getMessage());
         }
-
     }
 
     @FXML
@@ -178,15 +176,12 @@ public class UsuarioController {
             return;
         }
 
-        // Campos comunes
         String nombres = txtNombreUsuario.getText();
         String apellidos = txtApellidoUsuario.getText();
         String cedula = txtCedulaUsuario.getText();
         String correo = txtCorreoUsuario.getText();
         String contrasena = txtContraseñaUsuario.getText();
         Genero genero = cbGenero.getValue();
-        String telefono1 = txtTelefonoUsuario.getText();
-        String telefono2 = txtTelefono2Usuario.getText();
 
         List<String> telefonos = new ArrayList<>();
         if (!txtTelefonoUsuario.getText().trim().isEmpty()) telefonos.add(txtTelefonoUsuario.getText().trim());
@@ -198,21 +193,20 @@ public class UsuarioController {
         }
 
         Usuario u;
-        if (rol == Rol.ATLETA) {
+        if (rol.getCodigo() == 1) {  // 1 = ATLETA
             Atleta a = new Atleta();
             a.setNombres(nombres);
             a.setApellidos(apellidos);
             a.setCedula(cedula);
             a.setCorreo(correo);
             a.setContrasena(contrasena);
-            // genero como enum
             tryInvokeSetter(a, "setGenero", new Class[]{Genero.class}, new Object[]{genero});
             a.setTelefonos(telefonos);
             a.setPerfilDeportivo(txtPerfilDeportivo.getText().trim());
             a.setFechaNacimiento(datepFechaNacimiento.getValue());
             a.setPeso(parseDoubleToDouble(txtPeso.getText()));
             a.setAltura(parseDoubleToDouble(txtAltura.getText()));
-            tryInvokeSetter(a, "setRol", new Class[]{Rol.class}, new Object[]{Rol.ATLETA});
+            a.setRol(rol.getCodigo());
             u = a;
         } else {
             Coach c = new Coach();
@@ -227,7 +221,7 @@ public class UsuarioController {
             c.setEspecialidad(txtEspecialidad.getText().trim());
             c.setCentroTrabajo(txtCentroTrabajo.getText().trim());
             c.setDisponibilidad(txtDisponibilidad.getText().trim());
-            tryInvokeSetter(c, "setRol", new Class[]{Rol.class}, new Object[]{Rol.COACH});
+            c.setRol(rol.getCodigo());
             u = c;
         }
 
@@ -238,7 +232,6 @@ public class UsuarioController {
         if (controladorPrincipal != null) {
             controladorPrincipal.notificarCambioUsuario();
         }
-
     }
 
     @FXML
@@ -267,20 +260,20 @@ public class UsuarioController {
             ocultarAmbos();
             return;
         }
-        if (rolSeleccionado == Rol.ATLETA) mostrarAtleta();
-        else if (rolSeleccionado == Rol.COACH) mostrarCoach();
+        if (rolSeleccionado.getCodigo() == 1) mostrarAtleta();
+        else if (rolSeleccionado.getCodigo() == 2) mostrarCoach();
         else ocultarAmbos();
-
     }
 
     @FXML
     void initialize() {
         cbGenero.setItems(FXCollections.observableArrayList(Genero.values()));
-        cbRol.setItems(FXCollections.observableArrayList(Rol.values()));
+        listaRoles.setAll(rolDAO.listar());
+        cbRol.setItems(listaRoles);
 
         // Configurar columnas de tabla
         tcNombreUsuario.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
-                        cellData.getValue().getNombres() + " " + cellData.getValue().getApellidos()));
+                cellData.getValue().getNombres() + " " + cellData.getValue().getApellidos()));
         tcCedulaUsuario.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getCedula()));
         tcCorreoUsuario.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getCorreo()));
         tcGeneroUsuario.setCellValueFactory(data -> {
@@ -290,12 +283,14 @@ public class UsuarioController {
         });
 
         tcRolUsuario.setCellValueFactory(data -> {
-            Rol r = data.getValue().getRol();
-            String s = (r != null) ? r.name() : "";
+            Integer r = data.getValue().getRol();
+            String s = String.valueOf(r);
             return new SimpleStringProperty(s);
         });
 
+        // ✅ CARGAR DATOS UNA SOLA VEZ AL INICIO
         refreshTabla();
+
         FilteredList<Usuario> filteredData = new FilteredList<>(listaUsuarios, p -> true);
 
         txtFiltrarUsuario.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -305,7 +300,6 @@ public class UsuarioController {
                 }
                 String filtro = newValue.toLowerCase();
 
-                // Coincidencias con nombre, apellido, cédula o correo
                 if (usuario.getNombres().toLowerCase().contains(filtro)) return true;
                 if (usuario.getApellidos().toLowerCase().contains(filtro)) return true;
                 if (usuario.getCedula().toLowerCase().contains(filtro)) return true;
@@ -397,7 +391,6 @@ public class UsuarioController {
         if (g instanceof Genero) cbGenero.setValue((Genero) g);
         else cbGenero.setValue(null);
 
-        // telefonos
         Object t = tryInvokeGetter(u, "getTelefonos");
         if (t instanceof List) {
             List<?> lista = (List<?>) t;
@@ -411,7 +404,14 @@ public class UsuarioController {
             txtPeso.setText(a.getPeso() != null ? String.valueOf(a.getPeso()) : "");
             txtAltura.setText(a.getAltura() != null ? String.valueOf(a.getAltura()) : "");
             datepFechaNacimiento.setValue(a.getFechaNacimiento());
-            cbRol.setValue(Rol.ATLETA);
+            Integer rolId = u.getRol();
+            if (rolId != null) {
+                Rol rolEncontrado = listaRoles.stream()
+                        .filter(r -> r.getCodigo().equals(rolId))
+                        .findFirst()
+                        .orElse(null);
+                cbRol.setValue(rolEncontrado);
+            }
             mostrarAtleta();
         } else if (u instanceof Coach) {
             Coach c = (Coach) u;
@@ -419,18 +419,23 @@ public class UsuarioController {
             txtEspecialidad.setText(safeString(c.getEspecialidad()));
             txtCentroTrabajo.setText(safeString(c.getCentroTrabajo()));
             txtDisponibilidad.setText(safeString(c.getDisponibilidad()));
-            cbRol.setValue(Rol.COACH);
+            Integer rolId = u.getRol();
+            if (rolId != null) {
+                Rol rolEncontrado = listaRoles.stream()
+                        .filter(r -> r.getCodigo().equals(rolId))
+                        .findFirst()
+                        .orElse(null);
+                cbRol.setValue(rolEncontrado);
+            }
             mostrarCoach();
         } else {
             ocultarAmbos();
         }
     }
 
-
     private String safeString(String s) {
         return (s == null) ? "" : s;
     }
-
 
     private Object tryInvokeGetter(Object target, String methodName) {
         try {
@@ -451,17 +456,9 @@ public class UsuarioController {
 
     private MindSportController controladorPrincipal;
 
-    // Método público para conectar
     public void setControladorPrincipal(MindSportController controlador) {
         this.controladorPrincipal = controlador;
         System.out.println("🔗 UsuarioController conectado al controlador principal");
     }
 
-    // Método para refrescar datos cuando se cambia a esta pestaña
-    public void refrescarDatos() {
-        System.out.println("🔄 Refrescando datos en UsuarioController...");
-        refreshTabla();
-    }
-
 }
-

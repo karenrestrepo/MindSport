@@ -124,40 +124,6 @@ public class SesionDAOJdbc {
         }
     }
 
-    /** Filtrar (texto en cedulaAtleta, fecha, observacion o por id/rutinaId) */
-    public List<Sesion> filtrar(String texto) {
-        if (texto == null || texto.trim().isEmpty()) return listar();
-        String f = "%" + texto.trim().toLowerCase() + "%";
-        List<Sesion> res = new ArrayList<>();
-
-        // intentar by id numérico
-        try {
-            int id = Integer.parseInt(texto.trim());
-            buscarPorId(id).ifPresent(res::add);
-        } catch (NumberFormatException ignored) {}
-
-        String sql = "SELECT id, cedulaAtleta, rutinaId, fecha, duracionReal, puntuacion, observacionCoach FROM Sesion " +
-                "WHERE LOWER(cedulaAtleta) LIKE ? OR LOWER(observacionCoach) LIKE ? OR fecha LIKE ? OR rutinaId LIKE ? ORDER BY id DESC";
-        try (Connection cn = DBUtil.getConnection();
-             PreparedStatement ps = cn.prepareStatement(sql)) {
-            ps.setString(1, f);
-            ps.setString(2, f);
-            // fecha stored as DATE, matching with %text% works with MySQL when casting to string; use texto directly
-            ps.setString(3, "%" + texto.trim() + "%");
-            ps.setString(4, "%" + texto.trim() + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Sesion s = mapRow(rs);
-                    // evitar duplicados si ya se agregó por id
-                    if (res.stream().noneMatch(x -> x.getId() != null && x.getId().equals(s.getId()))) res.add(s);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return res;
-    }
-
     // ---------------- helper ----------------
     private Sesion mapRow(ResultSet rs) throws SQLException {
         Sesion s = new Sesion();

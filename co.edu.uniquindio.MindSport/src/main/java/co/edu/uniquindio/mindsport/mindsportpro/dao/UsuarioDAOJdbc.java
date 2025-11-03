@@ -3,12 +3,10 @@ package co.edu.uniquindio.mindsport.mindsportpro.dao;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Usuario;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Atleta;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Coach;
-import co.edu.uniquindio.mindsport.mindsportpro.enums.Rol;
 import co.edu.uniquindio.mindsport.mindsportpro.util.DBUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +22,6 @@ public class UsuarioDAOJdbc {
         return instancia;
     }
 
-    /** Convertir ResultSet (fila de Usuario) a objeto Usuario (Atleta/Coach si aplica). */
     private Usuario mapRowToUsuario(ResultSet rs) throws SQLException {
         String cedula = rs.getString("cedula");
         String nombres = rs.getString("nombres");
@@ -32,26 +29,19 @@ public class UsuarioDAOJdbc {
         String correo = rs.getString("correo");
         String generoStr = rs.getString("genero");
         String contrasena = rs.getString("contrasena");
-        String rolStr = rs.getString("rol");
-
-        // Instanciar según rol (si rol es nulo o desconocido, instanciamos Usuario genérico si existe clase)
-        Rol rol = null;
-        if (rolStr != null) {
-            try { rol = Rol.valueOf(rolStr); } catch (Exception ignored) {}
-        }
+        Integer rolId = rs.getInt("rol");  // ← CAMBIAR: ahora es INT
+        if (rs.wasNull()) rolId = null;     // ← AGREGAR: manejar NULL
 
         Usuario u;
-        if (rol == Rol.ATLETA) {
+        if (rolId != null && rolId == 1) {  // ← CAMBIAR: 1 = ATLETA
             Atleta a = new Atleta();
             a.setCedula(cedula);
             a.setNombres(nombres);
             a.setApellidos(apellidos);
             a.setCorreo(correo);
             a.setContrasena(contrasena);
-            // obtener campos de atleta
-            // Haremos otra consulta para obtener datos propios (peso, altura, perfil, fecha_nacimiento)
             u = a;
-        } else if (rol == Rol.COACH) {
+        } else if (rolId != null && rolId == 2) {  // ← CAMBIAR: 2 = COACH
             Coach c = new Coach();
             c.setCedula(cedula);
             c.setNombres(nombres);
@@ -60,9 +50,8 @@ public class UsuarioDAOJdbc {
             c.setContrasena(contrasena);
             u = c;
         } else {
-            // Si tu clase Usuario es abstracta y no puedes instanciarla, devolver null o una subclase por defecto.
-            // Supondré que tienes una clase Usuario concreta (o puedes devolver Atleta por defecto).
-            Atleta a = new Atleta(); // fallback
+            // fallback a Atleta
+            Atleta a = new Atleta();
             a.setCedula(cedula);
             a.setNombres(nombres);
             a.setApellidos(apellidos);
@@ -71,15 +60,17 @@ public class UsuarioDAOJdbc {
             u = a;
         }
 
-        // genero y rol si existen setters
-        try { java.lang.reflect.Method m = u.getClass().getMethod("setGenero", co.edu.uniquindio.mindsport.mindsportpro.enums.Genero.class);
+        // genero
+        try {
+            java.lang.reflect.Method m = u.getClass().getMethod("setGenero", co.edu.uniquindio.mindsport.mindsportpro.enums.Genero.class);
             if (generoStr != null) {
                 co.edu.uniquindio.mindsport.mindsportpro.enums.Genero gen = co.edu.uniquindio.mindsport.mindsportpro.enums.Genero.valueOf(generoStr);
                 m.invoke(u, gen);
             }
         } catch (Exception ignored) {}
 
-        try { java.lang.reflect.Method mr = u.getClass().getMethod("setRol", Rol.class); mr.invoke(u, rol); } catch (Exception ignored) {}
+        // rol como Integer
+        u.setRol(rolId);  // ← CAMBIAR: setear el Integer directamente
 
         return u;
     }
@@ -87,7 +78,16 @@ public class UsuarioDAOJdbc {
     /** LISTAR todos los usuarios (y mapear hijos y telefonos). */
     public List<Usuario> listar() {
         List<Usuario> lista = new ArrayList<>();
-        String sql = "SELECT cedula, nombres, apellidos, correo, genero, contrasena, rol FROM Usuario";
+
+        String sql = "SELECT " +
+                "u.cedula, u.nombres, u.apellidos, u.correo, u.genero, u.contrasena, u.rol, " +
+                "a.perfil_deportivo, a.peso, a.altura, a.fecha_nacimiento, " +
+                "c.id_profesional, c.especialidad, c.centro_Trabajo, c.disponibilidad " +
+                "FROM Usuario u " +
+                "LEFT JOIN Atleta a ON u.cedula = a.cedula " +
+                "LEFT JOIN Coach c ON u.cedula = c.cedula " +
+                "ORDER BY u.cedula";
+
         try (Connection cn = DBUtil.getConnection();
              PreparedStatement ps = cn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -95,8 +95,8 @@ public class UsuarioDAOJdbc {
             while (rs.next()) {
                 Usuario u = mapRowToUsuario(rs);
                 if (u != null) {
-                    // rellenar detalles de hijo y teléfonos
-                    cargarCamposHijoYTelefonos(u);
+                    // Solo cargar teléfonos
+                    cargarTelefonos(cn, u);
                     lista.add(u);
                 }
             }
@@ -124,12 +124,12 @@ public class UsuarioDAOJdbc {
                 } catch (Exception ignored) {}
                 ps.setString(5, genero);
                 ps.setString(6, u.getContrasena());
-                String rol = null;
-                try {
-                    Object r = u.getClass().getMethod("getRol").invoke(u);
-                    rol = (r != null) ? r.toString() : null;
-                } catch (Exception ignored) {}
-                ps.setString(7, rol);
+                Integer rol = u.getRol();
+                if (rol != null) {
+                    ps.setInt(7, rol);
+                } else {
+                    ps.setNull(7, Types.INTEGER);
+                }
 
                 ps.executeUpdate();
             }
@@ -202,9 +202,12 @@ public class UsuarioDAOJdbc {
                 try { Object g = u.getClass().getMethod("getGenero").invoke(u); genero = (g!=null)?g.toString():null; } catch (Exception ignored) {}
                 ps.setString(4, genero);
                 ps.setString(5, u.getContrasena());
-                String rol = null;
-                try { Object r = u.getClass().getMethod("getRol").invoke(u); rol = (r!=null)?r.toString():null; } catch (Exception ignored) {}
-                ps.setString(6, rol);
+                Integer rol = u.getRol();
+                if (rol != null) {
+                    ps.setInt(6, rol);
+                } else {
+                    ps.setNull(6, Types.INTEGER);
+                }
                 ps.setString(7, u.getCedula());
                 ps.executeUpdate();
             }
@@ -295,29 +298,23 @@ public class UsuarioDAOJdbc {
         }
     }
 
-    /** Borrar todo (útil solo en desarrollo). */
-    public void borrarTodo() {
-        try (Connection cn = DBUtil.getConnection();
-             Statement st = cn.createStatement()) {
-            st.executeUpdate("DELETE FROM TelefonoUsuario");
-            st.executeUpdate("DELETE FROM Atleta");
-            st.executeUpdate("DELETE FROM Coach");
-            st.executeUpdate("DELETE FROM Usuario");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     /** Buscar por cédula */
     public Optional<Usuario> buscarPorCedula(String cedula) {
-        String sql = "SELECT cedula, nombres, apellidos, correo, genero, contrasena, rol FROM Usuario WHERE cedula = ?";
+        String sql = "SELECT " +
+                "u.cedula, u.nombres, u.apellidos, u.correo, u.genero, u.contrasena, u.rol, " +
+                "a.perfil_deportivo, a.peso, a.altura, a.fecha_nacimiento, " +
+                "c.id_profesional, c.especialidad, c.centro_Trabajo, c.disponibilidad " +
+                "FROM Usuario u " +
+                "LEFT JOIN Atleta a ON u.cedula = a.cedula " +
+                "LEFT JOIN Coach c ON u.cedula = c.cedula " +
+                "WHERE u.cedula = ?";
         try (Connection cn = DBUtil.getConnection();
              PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setString(1, cedula);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Usuario u = mapRowToUsuario(rs);
-                    cargarCamposHijoYTelefonos(u);
+                    cargarTelefonos(cn, u);  // ← CAMBIAR: solo teléfonos
                     return Optional.ofNullable(u);
                 }
             }
@@ -327,53 +324,22 @@ public class UsuarioDAOJdbc {
         return Optional.empty();
     }
 
-    /** Carga campos de tabla hija y telefonos en el objeto Usuario pasado */
-    private void cargarCamposHijoYTelefonos(Usuario u) {
+    private void cargarTelefonos(Connection cn, Usuario u) {
         if (u == null) return;
-        String cedula = u.getCedula();
-        try (Connection cn = DBUtil.getConnection()) {
-            // comprobar si es Atleta
-            try (PreparedStatement ps = cn.prepareStatement("SELECT perfil_deportivo, peso, altura, fecha_nacimiento FROM Atleta WHERE cedula = ?")) {
-                ps.setString(1, cedula);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next() && u instanceof Atleta) {
-                        Atleta a = (Atleta) u;
-                        a.setPerfilDeportivo(rs.getString("perfil_deportivo"));
-                        double peso = rs.getDouble("peso");
-                        if (!rs.wasNull()) a.setPeso(peso);
-                        double altura = rs.getDouble("altura");
-                        if (!rs.wasNull()) a.setAltura(altura);
-                        Date fn = rs.getDate("fecha_nacimiento");
-                        if (fn != null) a.setFechaNacimiento(fn.toLocalDate());
-                    }
-                }
-            }
-            // comprobar si es Coach
-            try (PreparedStatement ps = cn.prepareStatement("SELECT id_profesional, especialidad, centro_trabajo, disponibilidad FROM Coach WHERE cedula = ?")) {
-                ps.setString(1, cedula);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next() && u instanceof Coach) {
-                        Coach c = (Coach) u;
-                        c.setIdProfesional(rs.getString("id_profesional"));
-                        c.setEspecialidad(rs.getString("especialidad"));
-                        c.setCentroTrabajo(rs.getString("centro_trabajo"));
-                        c.setDisponibilidad(rs.getString("disponibilidad"));
-                    }
-                }
-            }
 
-            // telefonos
-            try (PreparedStatement ps = cn.prepareStatement("SELECT numero FROM TelefonoUsuario WHERE cedula = ?")) {
-                ps.setString(1, cedula);
-                try (ResultSet rs = ps.executeQuery()) {
-                    List<String> telefonos = new ArrayList<>();
-                    while (rs.next()) telefonos.add(rs.getString("numero"));
-                    try { java.lang.reflect.Method m = u.getClass().getMethod("setTelefonos", List.class); m.invoke(u, telefonos); } catch (Exception ignored) {}
+        try (PreparedStatement ps = cn.prepareStatement("SELECT numero FROM TelefonoUsuario WHERE cedula = ?")) {
+            ps.setString(1, u.getCedula());
+            try (ResultSet rs = ps.executeQuery()) {
+                List<String> telefonos = new ArrayList<>();
+                while (rs.next()) {
+                    telefonos.add(rs.getString("numero"));
                 }
+                u.setTelefonos(telefonos);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 }
 

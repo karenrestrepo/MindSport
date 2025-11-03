@@ -1,7 +1,6 @@
 package co.edu.uniquindio.mindsport.mindsportpro.model;
 
 import co.edu.uniquindio.mindsport.mindsportpro.enums.Genero;
-import co.edu.uniquindio.mindsport.mindsportpro.enums.Rol;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,12 +15,13 @@ public class Coach extends Usuario{
 
     public Coach() {
         super();
-        this.setRol(Rol.COACH);
+        this.setRol(2);  // ← 2 = COACH
     }
 
     public Coach(String id, String nombres, String apellidos, String correo, Genero genero, String contrasena,
-                 List<String> telefonos, LocalDateTime fechaRegistro, Rol rol, String idProfesional, String especialidad,
+                 List<String> telefonos, LocalDateTime fechaRegistro, Integer rol, String idProfesional, String especialidad,
                  String centroTrabajo, List<String> listaCertificaciones, String disponibilidad) {
+        // ↑ CAMBIAR: Rol rol → Integer rol
         super(id, nombres, apellidos, correo, genero, contrasena, telefonos, fechaRegistro, rol);
         this.idProfesional = idProfesional;
         this.especialidad = especialidad;

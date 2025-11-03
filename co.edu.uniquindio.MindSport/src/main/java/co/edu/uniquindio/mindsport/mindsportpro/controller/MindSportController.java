@@ -41,14 +41,6 @@ public class MindSportController {
         // Conectar controladores hijos al principal
         conectarControladores();
 
-        // Listener para detectar cambios de pestaña
-        tabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
-            if (newTab != null) {
-                System.out.println("📑 Cambiando a pestaña: " + newTab.getText());
-                onTabChanged(newTab);
-            }
-        });
-
         System.out.println("✅ MindSportController inicializado correctamente");
     }
 
@@ -82,36 +74,14 @@ public class MindSportController {
         }
     }
 
-    private void onTabChanged(Tab tab) {
-        String tabText = tab.getText();
-
-        if (tabText.equals("Rutinas")) {
-            System.out.println("🔄 Sincronizando datos para Rutinas...");
-            notificarCambiosARutinas();
-        } else if (tabText.equals("Ejercicios")) {
-            System.out.println("🔄 Sincronizando datos para Ejercicios...");
-            notificarCambiosAEjercicios();
-        } else if (tabText.equals("Gestión de usuarios")) {
-            System.out.println("🔄 Sincronizando datos para Usuarios...");
-            notificarCambiosAUsuarios();
-        } else if (tabText.equals("Sesiones")) {
-            System.out.println("🔄 Sincronizando datos para Sesiones...");
-            notificarCambiosASesiones();
-        }
-    }
-
-    // ======================================================
-    // 🔔 MÉTODOS DE NOTIFICACIÓN ENTRE CONTROLADORES
-    // ======================================================
-
     public void notificarCambioUsuario() {
         System.out.println("📢 Notificando cambio en Usuarios...");
-        if (rutinaController != null) {
+        /*if (rutinaController != null) {
             rutinaController.actualizarDatosExternos();
         }
         if (sesionController != null) {
             sesionController.actualizarDatosExternos();
-        }
+        }*/
     }
 
     public void notificarCambioEjercicio() {
@@ -127,33 +97,4 @@ public class MindSportController {
             sesionController.actualizarDatosExternos();
         }
     }
-
-    // ======================================================
-    // 🔁 REFRESCAR CUANDO SE CAMBIA DE PESTAÑA
-    // ======================================================
-
-    private void notificarCambiosAUsuarios() {
-        if (usuarioController != null) {
-            usuarioController.refrescarDatos();
-        }
-    }
-
-    private void notificarCambiosARutinas() {
-        if (rutinaController != null) {
-            rutinaController.refrescarDatos();
-        }
-    }
-
-    private void notificarCambiosAEjercicios() {
-        if (ejercicioController != null) {
-            ejercicioController.refrescarDatos();
-        }
-    }
-
-    private void notificarCambiosASesiones() {
-        if (sesionController != null) {
-            sesionController.refrescarDatos();
-        }
-    }
 }
-
