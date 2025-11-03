@@ -29,26 +29,48 @@ public class UsuarioDAOJdbc {
         String correo = rs.getString("correo");
         String generoStr = rs.getString("genero");
         String contrasena = rs.getString("contrasena");
-        Integer rolId = rs.getInt("rol");  // ← CAMBIAR: ahora es INT
-        if (rs.wasNull()) rolId = null;     // ← AGREGAR: manejar NULL
+        Integer rolId = rs.getInt("rol");
+        if (rs.wasNull()) rolId = null;
 
         Usuario u;
-        if (rolId != null && rolId == 1) {  // ← CAMBIAR: 1 = ATLETA
+        if (rolId != null && rolId == 1) {  // ATLETA
             Atleta a = new Atleta();
             a.setCedula(cedula);
             a.setNombres(nombres);
             a.setApellidos(apellidos);
             a.setCorreo(correo);
             a.setContrasena(contrasena);
+
+            // ✅ CARGAR DATOS ESPECÍFICOS DE ATLETA
+            a.setPerfilDeportivo(rs.getString("perfil_deportivo"));
+
+            double peso = rs.getDouble("peso");
+            if (!rs.wasNull()) a.setPeso(peso);
+
+            double altura = rs.getDouble("altura");
+            if (!rs.wasNull()) a.setAltura(altura);
+
+            Date fechaNac = rs.getDate("fecha_nacimiento");
+            if (fechaNac != null) a.setFechaNacimiento(fechaNac.toLocalDate());
+
             u = a;
-        } else if (rolId != null && rolId == 2) {  // ← CAMBIAR: 2 = COACH
+
+        } else if (rolId != null && rolId == 2) {  // COACH
             Coach c = new Coach();
             c.setCedula(cedula);
             c.setNombres(nombres);
             c.setApellidos(apellidos);
             c.setCorreo(correo);
             c.setContrasena(contrasena);
+
+            // ✅ CARGAR DATOS ESPECÍFICOS DE COACH
+            c.setIdProfesional(rs.getString("id_profesional"));
+            c.setEspecialidad(rs.getString("especialidad"));
+            c.setCentroTrabajo(rs.getString("centro_Trabajo"));
+            c.setDisponibilidad(rs.getString("disponibilidad"));
+
             u = c;
+
         } else {
             // fallback a Atleta
             Atleta a = new Atleta();
@@ -60,7 +82,7 @@ public class UsuarioDAOJdbc {
             u = a;
         }
 
-        // genero
+        // Configurar género
         try {
             java.lang.reflect.Method m = u.getClass().getMethod("setGenero", co.edu.uniquindio.mindsport.mindsportpro.enums.Genero.class);
             if (generoStr != null) {
@@ -69,8 +91,8 @@ public class UsuarioDAOJdbc {
             }
         } catch (Exception ignored) {}
 
-        // rol como Integer
-        u.setRol(rolId);  // ← CAMBIAR: setear el Integer directamente
+        // Configurar rol
+        u.setRol(rolId);
 
         return u;
     }

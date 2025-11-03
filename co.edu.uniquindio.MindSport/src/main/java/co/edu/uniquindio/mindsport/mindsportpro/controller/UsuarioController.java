@@ -126,45 +126,122 @@ public class UsuarioController {
     @FXML
     void onActualizarUsuario(ActionEvent event) {
         Usuario seleccionado = tableUsuario.getSelectionModel().getSelectedItem();
-        if (seleccionado == null) { mostrarAlerta("Seleccione un usuario para actualizar."); return; }
+        if (seleccionado == null) {
+            mostrarAlerta("Seleccione un usuario para actualizar.");
+            return;
+        }
 
         try {
-            seleccionado.setNombres(txtNombreUsuario.getText().trim());
-            seleccionado.setApellidos(txtApellidoUsuario.getText().trim());
-            seleccionado.setCedula(txtCedulaUsuario.getText().trim());
-            seleccionado.setCorreo(txtCorreoUsuario.getText().trim());
-            seleccionado.setContrasena(txtContraseñaUsuario.getText().trim());
-            tryInvokeSetter(seleccionado, "setGenero", new Class[]{Genero.class}, new Object[]{cbGenero.getValue()});
-
-            List<String> telefonos = new ArrayList<>();
-            if (!txtTelefonoUsuario.getText().trim().isEmpty()) telefonos.add(txtTelefonoUsuario.getText().trim());
-            if (!txtTelefono2Usuario.getText().trim().isEmpty()) telefonos.add(txtTelefono2Usuario.getText().trim());
-            tryInvokeSetter(seleccionado, "setTelefonos", new Class[]{List.class}, new Object[]{telefonos});
-
-            if (seleccionado instanceof Atleta) {
-                Atleta a = (Atleta) seleccionado;
-                a.setPerfilDeportivo(txtPerfilDeportivo.getText().trim());
-                a.setFechaNacimiento(datepFechaNacimiento.getValue());
-                a.setPeso(parseDoubleToDouble(txtPeso.getText()));
-                a.setAltura(parseDoubleToDouble(txtAltura.getText()));
-            } else if (seleccionado instanceof Coach) {
-                Coach c = (Coach) seleccionado;
-                c.setIdProfesional(txtIdProfesional.getText().trim());
-                c.setEspecialidad(txtEspecialidad.getText().trim());
-                c.setCentroTrabajo(txtCentroTrabajo.getText().trim());
-                c.setDisponibilidad(txtDisponibilidad.getText().trim());
+            // ✅ VERIFICAR SI HAY CAMBIO DE ROL
+            Rol rolSeleccionado = cbRol.getValue();
+            if (rolSeleccionado == null) {
+                mostrarAlerta("Debe seleccionar un rol.");
+                return;
             }
 
-            usuarioDAO.actualizar(seleccionado);
-            refreshTabla();
+            Integer nuevoRolId = rolSeleccionado.getCodigo();
+            Integer rolActual = seleccionado.getRol();
 
-            if (controladorPrincipal != null) {
-                controladorPrincipal.notificarCambioUsuario();
+            boolean cambioDeRol = (nuevoRolId != null && !nuevoRolId.equals(rolActual));
+
+            Usuario usuarioActualizado;
+
+            if (cambioDeRol) {
+                // ✅ CREAR NUEVA INSTANCIA DEL TIPO CORRECTO
+                if (nuevoRolId == 1) { // Cambiar a ATLETA
+                    Atleta a = new Atleta();
+                    copiarDatosBasicos(seleccionado, a);
+                    a.setPerfilDeportivo(txtPerfilDeportivo.getText().trim());
+                    a.setPeso(parseDoubleToDouble(txtPeso.getText()));
+                    a.setAltura(parseDoubleToDouble(txtAltura.getText()));
+                    a.setFechaNacimiento(datepFechaNacimiento.getValue());
+                    usuarioActualizado = a;
+                } else { // Cambiar a COACH
+                    Coach c = new Coach();
+                    copiarDatosBasicos(seleccionado, c);
+                    c.setIdProfesional(txtIdProfesional.getText().trim());
+                    c.setEspecialidad(txtEspecialidad.getText().trim());
+                    c.setCentroTrabajo(txtCentroTrabajo.getText().trim());
+                    c.setDisponibilidad(txtDisponibilidad.getText().trim());
+                    usuarioActualizado = c;
+                }
+            } else {
+                // ✅ SIN CAMBIO DE ROL - usar la instancia actual
+                usuarioActualizado = seleccionado;
+                actualizarDatosUsuario(usuarioActualizado);
+            }
+
+            // Actualizar en base de datos
+            boolean ok = usuarioDAO.actualizar(usuarioActualizado);
+            if (ok) {
+                mostrarAlerta("Usuario actualizado correctamente.");
+                refreshTabla();
+                limpiarCampos();
+
+                if (controladorPrincipal != null) {
+                    controladorPrincipal.notificarCambioUsuario();
+                }
+            } else {
+                mostrarAlerta("No fue posible actualizar el usuario.");
             }
 
         } catch (Exception ex) {
-            mostrarAlerta("No fue posible actualizar: " + ex.getMessage());
+            mostrarAlerta("Error al actualizar: " + ex.getMessage());
+            ex.printStackTrace();
         }
+    }
+
+    // ✅ MÉTODO AUXILIAR: Copiar datos básicos entre usuarios
+    private void copiarDatosBasicos(Usuario origen, Usuario destino) {
+        destino.setCedula(origen.getCedula());
+        destino.setNombres(txtNombreUsuario.getText().trim());
+        destino.setApellidos(txtApellidoUsuario.getText().trim());
+        destino.setCorreo(txtCorreoUsuario.getText().trim());
+        destino.setContrasena(txtContraseñaUsuario.getText().trim());
+
+        Genero genero = cbGenero.getValue();
+        tryInvokeSetter(destino, "setGenero", new Class[]{Genero.class}, new Object[]{genero});
+
+        List<String> telefonos = new ArrayList<>();
+        if (!txtTelefonoUsuario.getText().trim().isEmpty())
+            telefonos.add(txtTelefonoUsuario.getText().trim());
+        if (!txtTelefono2Usuario.getText().trim().isEmpty())
+            telefonos.add(txtTelefono2Usuario.getText().trim());
+        destino.setTelefonos(telefonos);
+
+        destino.setRol(cbRol.getValue().getCodigo());
+    }
+
+    // ✅ MÉTODO AUXILIAR: Actualizar datos del usuario actual (sin cambio de rol)
+    private void actualizarDatosUsuario(Usuario u) {
+        u.setNombres(txtNombreUsuario.getText().trim());
+        u.setApellidos(txtApellidoUsuario.getText().trim());
+        u.setCorreo(txtCorreoUsuario.getText().trim());
+        u.setContrasena(txtContraseñaUsuario.getText().trim());
+        tryInvokeSetter(u, "setGenero", new Class[]{Genero.class}, new Object[]{cbGenero.getValue()});
+
+        List<String> telefonos = new ArrayList<>();
+        if (!txtTelefonoUsuario.getText().trim().isEmpty())
+            telefonos.add(txtTelefonoUsuario.getText().trim());
+        if (!txtTelefono2Usuario.getText().trim().isEmpty())
+            telefonos.add(txtTelefono2Usuario.getText().trim());
+        tryInvokeSetter(u, "setTelefonos", new Class[]{List.class}, new Object[]{telefonos});
+
+        if (u instanceof Atleta) {
+            Atleta a = (Atleta) u;
+            a.setPerfilDeportivo(txtPerfilDeportivo.getText().trim());
+            a.setFechaNacimiento(datepFechaNacimiento.getValue());
+            a.setPeso(parseDoubleToDouble(txtPeso.getText()));
+            a.setAltura(parseDoubleToDouble(txtAltura.getText()));
+        } else if (u instanceof Coach) {
+            Coach c = (Coach) u;
+            c.setIdProfesional(txtIdProfesional.getText().trim());
+            c.setEspecialidad(txtEspecialidad.getText().trim());
+            c.setCentroTrabajo(txtCentroTrabajo.getText().trim());
+            c.setDisponibilidad(txtDisponibilidad.getText().trim());
+        }
+
+        u.setRol(cbRol.getValue().getCodigo());
     }
 
     @FXML
@@ -283,9 +360,17 @@ public class UsuarioController {
         });
 
         tcRolUsuario.setCellValueFactory(data -> {
-            Integer r = data.getValue().getRol();
-            String s = String.valueOf(r);
-            return new SimpleStringProperty(s);
+            Integer rolId = data.getValue().getRol();
+            if (rolId == null) return new SimpleStringProperty("");
+
+            // Buscar el rol en la lista y obtener su descripción
+            Rol rolEncontrado = listaRoles.stream()
+                    .filter(r -> r.getCodigo().equals(rolId))
+                    .findFirst()
+                    .orElse(null);
+
+            String descripcion = (rolEncontrado != null) ? rolEncontrado.getDescripcion() : String.valueOf(rolId);
+            return new SimpleStringProperty(descripcion);
         });
 
         // ✅ CARGAR DATOS UNA SOLA VEZ AL INICIO

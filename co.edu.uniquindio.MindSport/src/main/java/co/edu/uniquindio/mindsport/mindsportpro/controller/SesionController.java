@@ -51,7 +51,9 @@ public class SesionController {
 
     @FXML
     void initialize() {
-        // cargar combos: atletas y rutinas
+        System.out.println("🔧 Inicializando SesionController...");
+
+        // ✅ Cargar combos: atletas y rutinas
         List<Atleta> atletas = usuarioDAO.listar().stream()
                 .filter(u -> u instanceof Atleta)
                 .map(u -> (Atleta) u)
@@ -59,11 +61,63 @@ public class SesionController {
         listaAtletas.setAll(atletas);
         cbAtleta.setItems(listaAtletas);
 
+        // ✅ Configurar cómo se muestra el atleta en el ComboBox
+        cbAtleta.setCellFactory(param -> new ListCell<Atleta>() {
+            @Override
+            protected void updateItem(Atleta atleta, boolean empty) {
+                super.updateItem(atleta, empty);
+                if (empty || atleta == null) {
+                    setText(null);
+                } else {
+                    setText(atleta.getNombres() + " " + atleta.getApellidos() + " - CC: " + atleta.getCedula());
+                }
+            }
+        });
+
+        cbAtleta.setButtonCell(new ListCell<Atleta>() {
+            @Override
+            protected void updateItem(Atleta atleta, boolean empty) {
+                super.updateItem(atleta, empty);
+                if (empty || atleta == null) {
+                    setText(null);
+                } else {
+                    setText(atleta.getNombres() + " " + atleta.getApellidos());
+                }
+            }
+        });
+
+        // ✅ Cargar rutinas
         listaRutinas.setAll(rutinaDAO.listar());
         cbRutina.setItems(listaRutinas);
 
+        // ✅ Configurar cómo se muestra la rutina en el ComboBox
+        cbRutina.setCellFactory(param -> new ListCell<Rutina>() {
+            @Override
+            protected void updateItem(Rutina rutina, boolean empty) {
+                super.updateItem(rutina, empty);
+                if (empty || rutina == null) {
+                    setText(null);
+                } else {
+                    setText(rutina.getTitulo() + " (" + rutina.getDuracionEstimada() + " min)");
+                }
+            }
+        });
+
+        cbRutina.setButtonCell(new ListCell<Rutina>() {
+            @Override
+            protected void updateItem(Rutina rutina, boolean empty) {
+                super.updateItem(rutina, empty);
+                if (empty || rutina == null) {
+                    setText(null);
+                } else {
+                    setText(rutina.getTitulo());
+                }
+            }
+        });
+
         // configurar columnas de la tabla
         tcIdSesion.setCellValueFactory(s -> new SimpleStringProperty(s.getValue().getId() == null ? "" : String.valueOf(s.getValue().getId())));
+
         tcAtleta.setCellValueFactory(s -> {
             String ced = s.getValue().getCedulaAtleta();
             String nombre = "";
@@ -73,6 +127,7 @@ public class SesionController {
             }
             return new SimpleStringProperty(nombre);
         });
+
         tcRutina.setCellValueFactory(s -> {
             Integer idRut = s.getValue().getRutinaId();
             String t = "";
@@ -82,6 +137,7 @@ public class SesionController {
             }
             return new SimpleStringProperty(t);
         });
+
         tcFecha.setCellValueFactory(s -> new SimpleStringProperty(s.getValue().getFecha() == null ? "" : s.getValue().getFecha().toString()));
         tcDuracion.setCellValueFactory(s -> new SimpleStringProperty(s.getValue().getDuracionReal() == null ? "" : String.valueOf(s.getValue().getDuracionReal())));
         tcScore.setCellValueFactory(s -> new SimpleStringProperty(s.getValue().getPuntuacion() == null ? "" : String.valueOf(s.getValue().getPuntuacion())));
@@ -112,9 +168,14 @@ public class SesionController {
                 return false;
             });
         });
+
         SortedList<Sesion> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(tableSesion.comparatorProperty());
         tableSesion.setItems(sortedData);
+
+        System.out.println("✅ SesionController inicializado");
+        System.out.println("   ✓ Atletas cargados: " + atletas.size());
+        System.out.println("   ✓ Rutinas cargadas: " + listaRutinas.size());
     }
 
     // ================= CRUD =================

@@ -80,7 +80,9 @@ public class RutinaController {
             }
         });
 
-        // Configurar ComboBox de coaches
+        // ✅ Configurar ComboBox de coaches
+        cbCoach.setItems(listaCoaches);
+
         cbCoach.setCellFactory(param -> new ListCell<Coach>() {
             @Override
             protected void updateItem(Coach coach, boolean empty) {
@@ -115,6 +117,7 @@ public class RutinaController {
             }
         });
 
+        // ✅ CARGAR DATOS AL INICIALIZAR
         cargarEjercicios();
         cargarCoaches();
         cargarRutinas();
@@ -202,6 +205,7 @@ public class RutinaController {
                 .map(u -> (Coach) u)
                 .collect(Collectors.toList());
         listaCoaches.setAll(coaches);
+        cbCoach.setItems(listaCoaches);
         System.out.println("   ✓ Coaches cargados: " + coaches.size());
     }
 

@@ -1,5 +1,6 @@
 package co.edu.uniquindio.mindsport.mindsportpro.dao;
 
+import co.edu.uniquindio.mindsport.mindsportpro.enums.NivelDificultad;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Rutina;
 import co.edu.uniquindio.mindsport.mindsportpro.model.Ejercicio;
 import co.edu.uniquindio.mindsport.mindsportpro.util.DBUtil;
@@ -21,7 +22,7 @@ public class RutinaDAOJdbc {
     }
 
     /**
-     * Crea una rutina y sus relaciones con ejercicios (tabla Rutina_Ejercicio).
+     * Crea una rutina y sus relaciones con ejercicios (tabla RutinaEjercicio).
      * Realiza todo en una transacción.
      */
     public Rutina crear(Rutina rutina) {
@@ -45,7 +46,7 @@ public class RutinaDAOJdbc {
                 }
             }
 
-            // Insertar relaciones Rutina_Ejercicio
+            // Insertar relaciones RutinaEjercicio
             insertarRelacionesRutinaEjercicio(cn, rutina);
 
             cn.commit();
@@ -115,8 +116,8 @@ public class RutinaDAOJdbc {
                 ps.executeUpdate();
             }
 
-            // Eliminar y volver a insertar relaciones en Rutina_Ejercicio
-            try (PreparedStatement del = cn.prepareStatement("DELETE FROM Rutina_Ejercicio WHERE rutina_id = ?")) {
+            // Eliminar y volver a insertar relaciones en RutinaEjercicio
+            try (PreparedStatement del = cn.prepareStatement("DELETE FROM RutinaEjercicio WHERE rutinaId = ?")) {
                 del.setInt(1, rutina.getId());
                 del.executeUpdate();
             }
@@ -132,7 +133,7 @@ public class RutinaDAOJdbc {
         }
     }
 
-    /** Elimina rutina. FK en Rutina_Ejercicio tiene ON DELETE CASCADE, pero eliminamos relaciones por seguridad. */
+    /** Elimina rutina. FK en RutinaEjercicio tiene ON DELETE CASCADE, pero eliminamos relaciones por seguridad. */
     public boolean eliminar(Rutina rutina) {
         if (rutina == null || rutina.getId() == null) return false;
         return eliminarPorId(rutina.getId());
@@ -163,29 +164,29 @@ public class RutinaDAOJdbc {
         int dur = rs.getInt("duracionEstimada");
         if (!rs.wasNull()) r.setDuracionEstimada(dur);
 
+        // ✅ CORREGIR: Conversión del enum NivelDificultad
         String nivel = rs.getString("nivelDificultad");
-        if (nivel != null) {
+        if (nivel != null && !nivel.trim().isEmpty()) {
             try {
-                // intento convertir si el enum existe en tu proyecto
-                r.setNivelDificultad(Enum.valueOf(r.getNivelDificultad().getDeclaringClass(), nivel));
-            } catch (Exception ex) {
-                // si falla (p. ej. no coincide el enum exacto), no hacer nada
+                r.setNivelDificultad(NivelDificultad.valueOf(nivel));
+            } catch (IllegalArgumentException ex) {
+                System.err.println("⚠️ Valor de dificultad no válido: " + nivel);
             }
         }
 
-        // publicada (tinyint)
+        // publicada (ahora es tinyint/boolean)
         r.setPublicada(rs.getBoolean("publicada"));
 
         return r;
     }
 
     /**
-     * Inserta registros en Rutina_Ejercicio según la lista de ejercicios en el objeto rutina.
+     * Inserta registros en RutinaEjercicio según la lista de ejercicios en el objeto rutina.
      * Usa la conexión recibida (parte de una transacción).
      */
     private void insertarRelacionesRutinaEjercicio(Connection cn, Rutina rutina) throws SQLException {
         if (rutina.getEjercicios() == null || rutina.getEjercicios().isEmpty()) return;
-        String sqlIns = "INSERT INTO Rutina_Ejercicio (rutina_id, ejercicio_id) VALUES (?,?)";
+        String sqlIns = "INSERT INTO RutinaEjercicio (rutinaId, ejercicio_id) VALUES (?,?)";
         try (PreparedStatement ps = cn.prepareStatement(sqlIns)) {
             for (Ejercicio e : rutina.getEjercicios()) {
                 if (e != null && e.getId() != null) {
@@ -206,8 +207,8 @@ public class RutinaDAOJdbc {
         if (rutina == null || rutina.getId() == null) return;
         String sql = "SELECT e.id, e.faseUso, e.titulo, e.descripcion, e.duracion, e.tipoEjercicio " +
                 "FROM Ejercicio e " +
-                "INNER JOIN Rutina_Ejercicio re ON e.id = re.ejercicio_id " +
-                "WHERE re.rutina_id = ? ORDER BY e.id";
+                "INNER JOIN RutinaEjercicio re ON e.id = re.idEjercicio " +
+                "WHERE re.idRutina = ? ORDER BY e.id";
         try (PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setInt(1, rutina.getId());
             try (ResultSet rs = ps.executeQuery()) {
