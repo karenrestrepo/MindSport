@@ -406,23 +406,27 @@ public class UsuarioController {
 
         txtFiltrarUsuario.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredData.setPredicate(usuario -> {
-                if (newValue == null || newValue.isEmpty()) {
+                // Si no hay texto de filtro, mostrar todos
+                if (newValue == null || newValue.trim().isEmpty()) {
                     return true;
                 }
-                String filtro = newValue.toLowerCase();
+                String filtro = newValue.toLowerCase().trim();
 
-                if (usuario.getNombres().toLowerCase().contains(filtro)) return true;
-                if (usuario.getApellidos().toLowerCase().contains(filtro)) return true;
-                if (usuario.getCedula().toLowerCase().contains(filtro)) return true;
-                if (usuario.getCorreo().toLowerCase().contains(filtro)) return true;
+                // Evitar NPE comprobando nulls antes de toLowerCase()
+                String nombres = usuario.getNombres() == null ? "" : usuario.getNombres().toLowerCase();
+                String apellidos = usuario.getApellidos() == null ? "" : usuario.getApellidos().toLowerCase();
+                String cedula = usuario.getCedula() == null ? "" : usuario.getCedula().toLowerCase();
+                String correo = usuario.getCorreo() == null ? "" : usuario.getCorreo().toLowerCase();
 
-                return false;
+                return nombres.contains(filtro) || apellidos.contains(filtro)
+                        || cedula.contains(filtro) || correo.contains(filtro);
             });
         });
 
         SortedList<Usuario> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(tableUsuario.comparatorProperty());
         tableUsuario.setItems(sortedData);
+
         tableUsuario.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) cargarUsuarioEnFormulario(newSel);
         });
@@ -451,7 +455,6 @@ public class UsuarioController {
 
     private void refreshTabla() {
         listaUsuarios.setAll(usuarioDAO.listar());
-        tableUsuario.setItems(listaUsuarios);
     }
 
     private void mostrarAlerta(String mensaje) {
