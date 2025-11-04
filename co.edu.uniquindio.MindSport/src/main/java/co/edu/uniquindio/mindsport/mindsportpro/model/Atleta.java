@@ -1,6 +1,7 @@
 package co.edu.uniquindio.mindsport.mindsportpro.model;
 
 import co.edu.uniquindio.mindsport.mindsportpro.enums.Genero;
+import co.edu.uniquindio.mindsport.mindsportpro.enums.TipoPerfil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Atleta extends Usuario{
-    private String perfilDeportivo;
+    private TipoPerfil tipoPerfil;
     private Double peso;
     private Double altura;
     private LocalDate fechaNacimiento;
@@ -21,21 +22,18 @@ public class Atleta extends Usuario{
     }
 
     public Atleta(String id, String nombres, String apellidos, String correo, Genero genero, String contrasena,
-                  List<String> telefonos, LocalDateTime fechaRegistro, Integer rol, String perfilDeportivo,
+                  List<String> telefonos, LocalDateTime fechaRegistro, Integer rol, TipoPerfil tipoPerfil,
                   double peso, double altura, LocalDate fechaNacimiento, List<Sesion> historialSesiones, List<Logro> listaLogros) {
         super(id, nombres, apellidos, correo, genero, contrasena, telefonos, fechaRegistro, rol);
-        this.perfilDeportivo = perfilDeportivo;
-        this.peso = peso;
-        this.altura = altura;
-        this.fechaNacimiento = fechaNacimiento;
+        this.tipoPerfil = tipoPerfil;
     }
 
-    public String getPerfilDeportivo() {
-        return perfilDeportivo;
+    public TipoPerfil getTipoPerfil() {
+        return tipoPerfil;
     }
 
-    public void setPerfilDeportivo(String perfilDeportivo) {
-        this.perfilDeportivo = perfilDeportivo;
+    public void setTipoPerfil(TipoPerfil tipoPerfil) {
+        this.tipoPerfil = tipoPerfil;
     }
 
     public Double getPeso() {
@@ -81,7 +79,7 @@ public class Atleta extends Usuario{
     @Override
     public String toString() {
         return "Atleta{" +
-                "perfilDeportivo='" + perfilDeportivo + '\'' +
+                "tipoPerfil=" + (tipoPerfil != null ? tipoPerfil.toString() : "null") +
                 ", peso=" + peso +
                 ", altura=" + altura +
                 ", fechaNacimiento=" + fechaNacimiento +

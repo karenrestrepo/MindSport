@@ -1,8 +1,7 @@
 package co.edu.uniquindio.mindsport.mindsportpro.dao;
 
-import co.edu.uniquindio.mindsport.mindsportpro.model.Usuario;
-import co.edu.uniquindio.mindsport.mindsportpro.model.Atleta;
-import co.edu.uniquindio.mindsport.mindsportpro.model.Coach;
+import co.edu.uniquindio.mindsport.mindsportpro.enums.TipoPerfil;
+import co.edu.uniquindio.mindsport.mindsportpro.model.*;
 import co.edu.uniquindio.mindsport.mindsportpro.util.DBUtil;
 
 import java.lang.reflect.InvocationTargetException;
@@ -42,7 +41,10 @@ public class UsuarioDAOJdbc {
             a.setContrasena(contrasena);
 
             // ✅ CARGAR DATOS ESPECÍFICOS DE ATLETA
-            a.setPerfilDeportivo(rs.getString("perfil_deportivo"));
+            int idPerfil = rs.getInt("perfil_deportivo");
+            if (!rs.wasNull()) {
+                a.setTipoPerfil(TipoPerfil.fromId(idPerfil));
+            }
 
             double peso = rs.getDouble("peso");
             if (!rs.wasNull()) a.setPeso(peso);
@@ -65,8 +67,22 @@ public class UsuarioDAOJdbc {
 
             // ✅ CARGAR DATOS ESPECÍFICOS DE COACH
             c.setIdProfesional(rs.getString("id_profesional"));
-            c.setEspecialidad(rs.getString("especialidad"));
-            c.setCentroTrabajo(rs.getString("centro_Trabajo"));
+            int idEsp = rs.getInt("especialidad");
+            int idCentro = rs.getInt("centro_trabajo");
+
+            if (!rs.wasNull()) {
+                Especialidad esp = new Especialidad();
+                esp.setIdEspecialidad(idEsp);
+                // opcional: si tu consulta trae más columnas puedes setear código y descripción
+                c.setEspecialidad(esp);
+            }
+
+            if (!rs.wasNull()) {
+                CentroTrabajo centro = new CentroTrabajo();
+                centro.setIdCentro(idCentro);
+                // opcional: igual, podrías setear nombre/ciudad si los incluyes en el SELECT
+                c.setCentroTrabajo(centro);
+            }
             c.setDisponibilidad(rs.getString("disponibilidad"));
 
             u = c;
@@ -162,7 +178,10 @@ public class UsuarioDAOJdbc {
                 String sqlA = "INSERT INTO Atleta (cedula, perfil_deportivo, peso, altura, fecha_nacimiento) VALUES (?,?,?,?,?)";
                 try (PreparedStatement ps = cn.prepareStatement(sqlA)) {
                     ps.setString(1, a.getCedula());
-                    ps.setString(2, a.getPerfilDeportivo());
+                    if (a.getTipoPerfil() != null)
+                        ps.setInt(2, a.getTipoPerfil().getId());
+                    else
+                        ps.setNull(2, Types.INTEGER);
                     if (a.getPeso() != null) ps.setDouble(3, a.getPeso()); else ps.setNull(3, Types.DOUBLE);
                     if (a.getAltura() != null) ps.setDouble(4, a.getAltura()); else ps.setNull(4, Types.DOUBLE);
                     if (a.getFechaNacimiento() != null) ps.setDate(5, Date.valueOf(a.getFechaNacimiento())); else ps.setNull(5, Types.DATE);
@@ -174,8 +193,15 @@ public class UsuarioDAOJdbc {
                 try (PreparedStatement ps = cn.prepareStatement(sqlC)) {
                     ps.setString(1, c.getCedula());
                     ps.setString(2, c.getIdProfesional());
-                    ps.setString(3, c.getEspecialidad());
-                    ps.setString(4, c.getCentroTrabajo());
+                    if (c.getEspecialidad() != null)
+                        ps.setInt(3, c.getEspecialidad().getIdEspecialidad());
+                    else
+                        ps.setNull(3, Types.INTEGER);
+
+                    if (c.getCentroTrabajo() != null)
+                        ps.setInt(4, c.getCentroTrabajo().getIdCentro());
+                    else
+                        ps.setNull(4, Types.INTEGER);
                     ps.setString(5, c.getDisponibilidad());
                     ps.executeUpdate();
                 }
@@ -246,7 +272,7 @@ public class UsuarioDAOJdbc {
                 String sqlA = "INSERT INTO Atleta (cedula, perfil_deportivo, peso, altura, fecha_nacimiento) VALUES (?,?,?,?,?)";
                 try (PreparedStatement ps = cn.prepareStatement(sqlA)) {
                     ps.setString(1, a.getCedula());
-                    ps.setString(2, a.getPerfilDeportivo());
+                    if (a.getTipoPerfil() != null) ps.setInt(2, a.getTipoPerfil().getId());
                     if (a.getPeso() != null) ps.setDouble(3, a.getPeso()); else ps.setNull(3, Types.DOUBLE);
                     if (a.getAltura() != null) ps.setDouble(4, a.getAltura()); else ps.setNull(4, Types.DOUBLE);
                     if (a.getFechaNacimiento() != null) ps.setDate(5, Date.valueOf(a.getFechaNacimiento())); else ps.setNull(5, Types.DATE);
@@ -258,8 +284,15 @@ public class UsuarioDAOJdbc {
                 try (PreparedStatement ps = cn.prepareStatement(sqlC)) {
                     ps.setString(1, c.getCedula());
                     ps.setString(2, c.getIdProfesional());
-                    ps.setString(3, c.getEspecialidad());
-                    ps.setString(4, c.getCentroTrabajo());
+                    if (c.getEspecialidad() != null)
+                        ps.setInt(3, c.getEspecialidad().getIdEspecialidad());
+                    else
+                        ps.setNull(3, Types.INTEGER);
+
+                    if (c.getCentroTrabajo() != null)
+                        ps.setInt(4, c.getCentroTrabajo().getIdCentro());
+                    else
+                        ps.setNull(4, Types.INTEGER);
                     ps.setString(5, c.getDisponibilidad());
                     ps.executeUpdate();
                 }

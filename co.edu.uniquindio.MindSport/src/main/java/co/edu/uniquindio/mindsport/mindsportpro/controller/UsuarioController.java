@@ -1,4 +1,7 @@
 package co.edu.uniquindio.mindsport.mindsportpro.controller;
+import co.edu.uniquindio.mindsport.mindsportpro.dao.CentroTrabajoDAOJdbc;
+import co.edu.uniquindio.mindsport.mindsportpro.dao.EspecialidadDAOJdbc;
+import co.edu.uniquindio.mindsport.mindsportpro.enums.TipoPerfil;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -9,10 +12,7 @@ import java.util.ResourceBundle;
 import co.edu.uniquindio.mindsport.mindsportpro.dao.RolDAOJdbc;
 import co.edu.uniquindio.mindsport.mindsportpro.dao.UsuarioDAOJdbc;
 import co.edu.uniquindio.mindsport.mindsportpro.enums.Genero;
-import co.edu.uniquindio.mindsport.mindsportpro.model.Rol;
-import co.edu.uniquindio.mindsport.mindsportpro.model.Atleta;
-import co.edu.uniquindio.mindsport.mindsportpro.model.Coach;
-import co.edu.uniquindio.mindsport.mindsportpro.model.Usuario;
+import co.edu.uniquindio.mindsport.mindsportpro.model.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -77,7 +77,10 @@ public class UsuarioController {
     private TextField txtCedulaUsuario;
 
     @FXML
-    private TextField txtCentroTrabajo;
+    private ComboBox<Especialidad> cbEspecialidad;
+
+    @FXML
+    private ComboBox<CentroTrabajo> cbCentroTrabajo;
 
     @FXML
     private PasswordField txtContraseñaUsuario;
@@ -89,9 +92,6 @@ public class UsuarioController {
     private TextField txtDisponibilidad;
 
     @FXML
-    private TextField txtEspecialidad;
-
-    @FXML
     private TextField txtFiltrarUsuario;
 
     @FXML
@@ -101,7 +101,7 @@ public class UsuarioController {
     private TextField txtNombreUsuario;
 
     @FXML
-    private TextField txtPerfilDeportivo;
+    private ComboBox<TipoPerfil> cbPerfilDeportivo;
 
     @FXML
     private TextField txtPeso;
@@ -119,9 +119,12 @@ public class UsuarioController {
     private VBox vboxCoach;
 
     private final UsuarioDAOJdbc usuarioDAO = UsuarioDAOJdbc.getInstancia();
+    private final EspecialidadDAOJdbc especialidadDAO = new EspecialidadDAOJdbc();
+    private final CentroTrabajoDAOJdbc centroTrabajoDAO = new CentroTrabajoDAOJdbc();
     private final RolDAOJdbc rolDAO = RolDAOJdbc.getInstancia();
     private final ObservableList<Usuario> listaUsuarios = FXCollections.observableArrayList();
     private final ObservableList<Rol> listaRoles = FXCollections.observableArrayList();
+
 
     @FXML
     void onActualizarUsuario(ActionEvent event) {
@@ -151,7 +154,10 @@ public class UsuarioController {
                 if (nuevoRolId == 1) { // Cambiar a ATLETA
                     Atleta a = new Atleta();
                     copiarDatosBasicos(seleccionado, a);
-                    a.setPerfilDeportivo(txtPerfilDeportivo.getText().trim());
+                    TipoPerfil perfilSeleccionado = cbPerfilDeportivo.getValue();
+                    if (perfilSeleccionado != null) {
+                        a.setTipoPerfil(perfilSeleccionado);
+                    }
                     a.setPeso(parseDoubleToDouble(txtPeso.getText()));
                     a.setAltura(parseDoubleToDouble(txtAltura.getText()));
                     a.setFechaNacimiento(datepFechaNacimiento.getValue());
@@ -160,8 +166,10 @@ public class UsuarioController {
                     Coach c = new Coach();
                     copiarDatosBasicos(seleccionado, c);
                     c.setIdProfesional(txtIdProfesional.getText().trim());
-                    c.setEspecialidad(txtEspecialidad.getText().trim());
-                    c.setCentroTrabajo(txtCentroTrabajo.getText().trim());
+                    Especialidad esp = cbEspecialidad.getValue();
+                    CentroTrabajo centro = cbCentroTrabajo.getValue();
+                    if (esp != null) c.setEspecialidad(esp);
+                    if (centro != null) c.setCentroTrabajo(centro);
                     c.setDisponibilidad(txtDisponibilidad.getText().trim());
                     usuarioActualizado = c;
                 }
@@ -229,15 +237,26 @@ public class UsuarioController {
 
         if (u instanceof Atleta) {
             Atleta a = (Atleta) u;
-            a.setPerfilDeportivo(txtPerfilDeportivo.getText().trim());
+            TipoPerfil perfilSeleccionado = cbPerfilDeportivo.getValue();
+            if (perfilSeleccionado != null) {
+                a.setTipoPerfil(perfilSeleccionado);
+            }
             a.setFechaNacimiento(datepFechaNacimiento.getValue());
             a.setPeso(parseDoubleToDouble(txtPeso.getText()));
             a.setAltura(parseDoubleToDouble(txtAltura.getText()));
         } else if (u instanceof Coach) {
             Coach c = (Coach) u;
             c.setIdProfesional(txtIdProfesional.getText().trim());
-            c.setEspecialidad(txtEspecialidad.getText().trim());
-            c.setCentroTrabajo(txtCentroTrabajo.getText().trim());
+            Especialidad especialidadSeleccionada = cbEspecialidad.getValue();
+            CentroTrabajo centroSeleccionado = cbCentroTrabajo.getValue();
+
+            // Asignarlos al objeto Coach
+            if (especialidadSeleccionada != null)
+                c.setEspecialidad(especialidadSeleccionada);
+
+            if (centroSeleccionado != null)
+                c.setCentroTrabajo(centroSeleccionado);
+
             c.setDisponibilidad(txtDisponibilidad.getText().trim());
         }
 
@@ -279,7 +298,10 @@ public class UsuarioController {
             a.setContrasena(contrasena);
             tryInvokeSetter(a, "setGenero", new Class[]{Genero.class}, new Object[]{genero});
             a.setTelefonos(telefonos);
-            a.setPerfilDeportivo(txtPerfilDeportivo.getText().trim());
+            TipoPerfil perfilSeleccionado = cbPerfilDeportivo.getValue();
+            if (perfilSeleccionado != null) {
+                a.setTipoPerfil(perfilSeleccionado);
+            }
             a.setFechaNacimiento(datepFechaNacimiento.getValue());
             a.setPeso(parseDoubleToDouble(txtPeso.getText()));
             a.setAltura(parseDoubleToDouble(txtAltura.getText()));
@@ -295,8 +317,10 @@ public class UsuarioController {
             tryInvokeSetter(c, "setGenero", new Class[]{Genero.class}, new Object[]{genero});
             c.setTelefonos(telefonos);
             c.setIdProfesional(txtIdProfesional.getText().trim());
-            c.setEspecialidad(txtEspecialidad.getText().trim());
-            c.setCentroTrabajo(txtCentroTrabajo.getText().trim());
+            Especialidad esp = cbEspecialidad.getValue();
+            CentroTrabajo centro = cbCentroTrabajo.getValue();
+            if (esp != null) c.setEspecialidad(esp);
+            if (centro != null) c.setCentroTrabajo(centro);
             c.setDisponibilidad(txtDisponibilidad.getText().trim());
             c.setRol(rol.getCodigo());
             u = c;
@@ -347,7 +371,9 @@ public class UsuarioController {
         cbGenero.setItems(FXCollections.observableArrayList(Genero.values()));
         listaRoles.setAll(rolDAO.listar());
         cbRol.setItems(listaRoles);
-
+        cbPerfilDeportivo.setItems(FXCollections.observableArrayList(TipoPerfil.values()));
+        cbEspecialidad.setItems(FXCollections.observableArrayList(especialidadDAO.listar()));
+        cbCentroTrabajo.setItems(FXCollections.observableArrayList(centroTrabajoDAO.listar()));
         // Configurar columnas de tabla
         tcNombreUsuario.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
                 cellData.getValue().getNombres() + " " + cellData.getValue().getApellidos()));
@@ -410,13 +436,13 @@ public class UsuarioController {
         txtContraseñaUsuario.clear();
         txtTelefonoUsuario.clear();
         txtTelefono2Usuario.clear();
-        txtPerfilDeportivo.clear();
+        cbPerfilDeportivo.setValue(null);
         txtPeso.clear();
         txtAltura.clear();
         datepFechaNacimiento.setValue(null);
         txtIdProfesional.clear();
-        txtEspecialidad.clear();
-        txtCentroTrabajo.clear();
+        cbCentroTrabajo.setValue(null);
+        cbEspecialidad.setValue(null);
         txtDisponibilidad.clear();
         cbRol.setValue(null);
         cbGenero.setValue(null);
@@ -485,7 +511,7 @@ public class UsuarioController {
 
         if (u instanceof Atleta) {
             Atleta a = (Atleta) u;
-            txtPerfilDeportivo.setText(safeString(a.getPerfilDeportivo()));
+            cbPerfilDeportivo.setValue(a.getTipoPerfil());
             txtPeso.setText(a.getPeso() != null ? String.valueOf(a.getPeso()) : "");
             txtAltura.setText(a.getAltura() != null ? String.valueOf(a.getAltura()) : "");
             datepFechaNacimiento.setValue(a.getFechaNacimiento());
@@ -501,8 +527,20 @@ public class UsuarioController {
         } else if (u instanceof Coach) {
             Coach c = (Coach) u;
             txtIdProfesional.setText(safeString(c.getIdProfesional()));
-            txtEspecialidad.setText(safeString(c.getEspecialidad()));
-            txtCentroTrabajo.setText(safeString(c.getCentroTrabajo()));
+            if (c.getEspecialidad() != null) {
+                cbEspecialidad.getItems().stream()
+                        .filter(e -> e.getIdEspecialidad() == c.getEspecialidad().getIdEspecialidad())
+                        .findFirst()
+                        .ifPresent(cbEspecialidad::setValue);
+            }
+
+            // Seleccionar el centro de trabajo correcto en el ComboBox
+            if (c.getCentroTrabajo() != null) {
+                cbCentroTrabajo.getItems().stream()
+                        .filter(ct -> ct.getIdCentro() == c.getCentroTrabajo().getIdCentro())
+                        .findFirst()
+                        .ifPresent(cbCentroTrabajo::setValue);
+            }
             txtDisponibilidad.setText(safeString(c.getDisponibilidad()));
             Integer rolId = u.getRol();
             if (rolId != null) {

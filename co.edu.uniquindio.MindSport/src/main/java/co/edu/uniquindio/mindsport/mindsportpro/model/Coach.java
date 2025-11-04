@@ -8,8 +8,8 @@ import java.util.List;
 
 public class Coach extends Usuario{
     private String idProfesional;
-    private String especialidad;
-    private String centroTrabajo;
+    private Especialidad especialidad;
+    private CentroTrabajo centroTrabajo;
     private List<String> listaCertificaciones = new ArrayList<>();
     private String disponibilidad;
 
@@ -19,9 +19,10 @@ public class Coach extends Usuario{
     }
 
     public Coach(String id, String nombres, String apellidos, String correo, Genero genero, String contrasena,
-                 List<String> telefonos, LocalDateTime fechaRegistro, Integer rol, String idProfesional, String especialidad,
-                 String centroTrabajo, List<String> listaCertificaciones, String disponibilidad) {
-        // ↑ CAMBIAR: Rol rol → Integer rol
+                 List<String> telefonos, LocalDateTime fechaRegistro, Integer rol, String idProfesional,
+                 Especialidad especialidad, CentroTrabajo centroTrabajo,
+                 List<String> listaCertificaciones, String disponibilidad) {
+
         super(id, nombres, apellidos, correo, genero, contrasena, telefonos, fechaRegistro, rol);
         this.idProfesional = idProfesional;
         this.especialidad = especialidad;
@@ -38,21 +39,11 @@ public class Coach extends Usuario{
         this.idProfesional = idProfesional;
     }
 
-    public String getEspecialidad() {
-        return especialidad;
-    }
+    public Especialidad getEspecialidad() { return especialidad; }
+    public void setEspecialidad(Especialidad especialidad) { this.especialidad = especialidad; }
 
-    public void setEspecialidad(String especialidad) {
-        this.especialidad = especialidad;
-    }
-
-    public String getCentroTrabajo() {
-        return centroTrabajo;
-    }
-
-    public void setCentroTrabajo(String centroTrabajo) {
-        this.centroTrabajo = centroTrabajo;
-    }
+    public CentroTrabajo getCentroTrabajo() { return centroTrabajo; }
+    public void setCentroTrabajo(CentroTrabajo centroTrabajo) { this.centroTrabajo = centroTrabajo; }
 
     public List<String> getListaCertificaciones() {
         return listaCertificaciones;
@@ -74,9 +65,8 @@ public class Coach extends Usuario{
     public String toString() {
         return "Coach{" +
                 "idProfesional='" + idProfesional + '\'' +
-                ", especialidad='" + especialidad + '\'' +
-                ", centroTrabajo='" + centroTrabajo + '\'' +
-                ", listaCertificaciones=" + listaCertificaciones +
+                ", especialidad=" + (especialidad != null ? especialidad.getDescripcion() : "null") +
+                ", centroTrabajo=" + (centroTrabajo != null ? centroTrabajo.getNombre() : "null") +
                 ", disponibilidad='" + disponibilidad + '\'' +
                 "} " + super.toString();
     }

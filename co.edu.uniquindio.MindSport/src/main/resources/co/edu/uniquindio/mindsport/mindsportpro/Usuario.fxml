@@ -44,25 +44,25 @@
                      <children>
                         <Label text="id profesional:" />
                         <TextField fx:id="txtIdProfesional" prefHeight="25.0" prefWidth="554.0" />
-                        <Label text="Especialidad:" />
-                        <TextField fx:id="txtEspecialidad" prefHeight="25.0" prefWidth="246.0" />
-                        <Label text="Centro de trabajo:" />
-                        <TextField fx:id="txtCentroTrabajo" prefHeight="25.0" prefWidth="246.0" />
-                        <Label text="Disponibilidad:" />
+                         <Label text="Especialidad:" />
+                         <ComboBox fx:id="cbEspecialidad" prefHeight="25.0" prefWidth="246.0" />
+                         <Label text="Centro de trabajo:" />
+                         <ComboBox fx:id="cbCentroTrabajo" prefHeight="25.0" prefWidth="246.0" />
+                         <Label text="Disponibilidad:" />
                         <TextField fx:id="txtDisponibilidad" prefHeight="19.0" prefWidth="287.0" />
                      </children>
                   </VBox>
                   <VBox fx:id="vboxAtleta" layoutX="374.0" layoutY="111.0" prefHeight="168.0" prefWidth="287.0" visible="false">
-                     <children>
-                        <Label text="Perfil deportivo:" />
-                        <TextField fx:id="txtPerfilDeportivo" prefHeight="25.0" prefWidth="554.0" />
-                        <Label text="Peso:" />
-                        <TextField fx:id="txtPeso" prefHeight="25.0" prefWidth="246.0" />
-                        <Label text="Altura:" />
-                        <TextField fx:id="txtAltura" prefHeight="25.0" prefWidth="246.0" />
-                        <Label text="Fecha de nacimiento:" />
-                        <DatePicker fx:id="datepFechaNacimiento" prefHeight="25.0" prefWidth="289.0" />
-                     </children>
+                      <children>
+                          <Label text="Perfil deportivo:" />
+                          <ComboBox fx:id="cbPerfilDeportivo" prefHeight="25.0" prefWidth="554.0" />
+                          <Label text="Peso:" />
+                          <TextField fx:id="txtPeso" prefHeight="25.0" prefWidth="246.0" />
+                          <Label text="Altura:" />
+                          <TextField fx:id="txtAltura" prefHeight="25.0" prefWidth="246.0" />
+                          <Label text="Fecha de nacimiento:" />
+                          <DatePicker fx:id="datepFechaNacimiento" prefHeight="25.0" prefWidth="289.0" />
+                      </children>
                   </VBox>
                   <PasswordField fx:id="txtContraseñaUsuario" layoutX="86.0" layoutY="243.0" prefHeight="25.0" prefWidth="240.0" />
                </children>
