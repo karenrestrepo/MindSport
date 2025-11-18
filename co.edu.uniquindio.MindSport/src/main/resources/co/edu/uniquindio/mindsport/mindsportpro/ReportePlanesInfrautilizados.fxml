@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="600.0" prefWidth="820.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.mindsport.mindsportpro.controller.ReportePlanesInfrautilizadosController">
+   <top>
+      <VBox alignment="CENTER" spacing="4.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label style="-fx-font-size: 22px; -fx-font-weight: bold;" text="Planes infrautilizados (inscritos sin sesiones)" />
+            <Label fx:id="lblMensaje" style="-fx-text-fill: red;" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" top="12.0" />
+         </padding>
+      </VBox>
+   </top>
+   <center>
+      <VBox spacing="12.0" BorderPane.alignment="CENTER">
+         <children>
+            <TableView fx:id="tablePlanes" prefHeight="420.0">
+               <columns>
+                  <TableColumn fx:id="tcIdPlan" prefWidth="80.0" text="ID" />
+                  <TableColumn fx:id="tcNombrePlan" prefWidth="200.0" text="Plan" />
+                  <TableColumn fx:id="tcInscripciones" prefWidth="130.0" text="Inscripciones" />
+                  <TableColumn fx:id="tcConSesiones" prefWidth="130.0" text="Con Sesiones" />
+                  <TableColumn fx:id="tcSinSesiones" prefWidth="130.0" text="Sin Sesiones" />
+                  <TableColumn fx:id="tcPorcentajeSin" prefWidth="140.0" text="Porcentaje Sin Sesiones" />
+               </columns>
+            </TableView>
+            <HBox alignment="CENTER_RIGHT" spacing="10.0">
+               <children>
+                  <Button fx:id="btnExportarPdf" mnemonicParsing="false" onAction="#onExportarPdf" text="Exportar PDF" />
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="12.0" right="12.0" />
+         </padding>
+      </VBox>
+   </center>
+   <bottom>
+      <HBox alignment="CENTER" spacing="10.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="btnVolver" mnemonicParsing="false" onAction="#onVolver" prefWidth="200.0" style="-fx-font-size: 14px;" text="Volver al Menu" />
+         </children>
+         <padding>
+            <Insets bottom="12.0" top="10.0" />
+         </padding>
+      </HBox>
+   </bottom>
+</BorderPane>

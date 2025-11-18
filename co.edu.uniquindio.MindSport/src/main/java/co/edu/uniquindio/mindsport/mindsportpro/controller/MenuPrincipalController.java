@@ -55,6 +55,9 @@ public class MenuPrincipalController {
             agregarBoton("Reporte Rutinas Mas Usadas", this::abrirReporteRutinas);
             agregarBoton("Composicion de Rutinas", this::abrirReporteRutinasDetalle);
             agregarBoton("Actividad Mensual", this::abrirActividadMensual);
+            agregarBoton("Atletas sobre promedio", this::abrirAtletasSuperior);
+            agregarBoton("Coaches fidelidad", this::abrirCoachesExclusividad);
+            agregarBoton("Planes infrautilizados", this::abrirPlanesInfrautilizados);
         } else if (rol == 1) { // ATLETA
             agregarBoton("Mis Sesiones", this::abrirSesiones);
             agregarBoton("Mi Reporte Resumen", this::abrirReporteResumen);
@@ -102,6 +105,18 @@ public class MenuPrincipalController {
 
     private void abrirActividadMensual() {
         navegarA("ReporteActividadMensual.fxml", "Actividad Mensual");
+    }
+
+    private void abrirAtletasSuperior() {
+        navegarA("ReporteAtletasSuperior.fxml", "Atletas sobre promedio");
+    }
+
+    private void abrirCoachesExclusividad() {
+        navegarA("ReporteCoachesExclusividad.fxml", "Coaches fidelidad");
+    }
+
+    private void abrirPlanesInfrautilizados() {
+        navegarA("ReportePlanesInfrautilizados.fxml", "Planes infrautilizados");
     }
 
     private void navegarA(String fxml, String titulo) {
