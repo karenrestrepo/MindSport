@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="640.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.mindsport.mindsportpro.controller.ReporteRutinasDetalleController">
+   <top>
+      <VBox alignment="CENTER" spacing="4.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label style="-fx-font-size: 22px; -fx-font-weight: bold;" text="Composición Detallada de Rutinas" />
+            <Label fx:id="lblMensaje" style="-fx-text-fill: red;" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" top="12.0" />
+         </padding>
+      </VBox>
+   </top>
+   <center>
+      <VBox spacing="10.0" BorderPane.alignment="CENTER">
+         <children>
+            <TableView fx:id="tableDetalle" prefHeight="500.0">
+               <columns>
+                  <TableColumn fx:id="tcId" prefWidth="70.0" text="ID" />
+                  <TableColumn fx:id="tcTitulo" prefWidth="180.0" text="Título" />
+                  <TableColumn fx:id="tcNivel" prefWidth="120.0" text="Nivel" />
+                  <TableColumn fx:id="tcDuracionEstimada" prefWidth="120.0" text="Duración Est." />
+                  <TableColumn fx:id="tcCoach" prefWidth="180.0" text="Coach" />
+                  <TableColumn fx:id="tcNumEjercicios" prefWidth="120.0" text="# Ejercicios" />
+                  <TableColumn fx:id="tcDuracionTotal" prefWidth="140.0" text="Duración Total" />
+                  <TableColumn fx:id="tcDuracionProm" prefWidth="150.0" text="Duración Prom/Ej" />
+                  <TableColumn fx:id="tcFisicos" prefWidth="110.0" text="Físicos" />
+                  <TableColumn fx:id="tcMentales" prefWidth="110.0" text="Mentales" />
+                  <TableColumn fx:id="tcMixtos" prefWidth="110.0" text="Mixtos" />
+                  <TableColumn fx:id="tcFases" prefWidth="220.0" text="Fases Incluidas" />
+               </columns>
+            </TableView>
+            <BarChart fx:id="barDuraciones" animated="false" barGap="8.0" categoryGap="18.0" prefHeight="260.0" title="Rutinas con mayor duración (top 8)" legendVisible="false">
+              <xAxis>
+                <NumberAxis fx:id="ejeDurX" label="Minutos totales (ejercicios / estimado)" forceZeroInRange="true" />
+              </xAxis>
+              <yAxis>
+                <CategoryAxis fx:id="ejeDurY" label="Rutina" />
+              </yAxis>
+            </BarChart>
+            <HBox alignment="CENTER_RIGHT" spacing="10.0">
+               <children>
+                  <Button fx:id="btnExportarPdf" mnemonicParsing="false" onAction="#onExportarPdf" text="Exportar PDF" />
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="12.0" right="12.0" />
+         </padding>
+      </VBox>
+   </center>
+   <bottom>
+      <HBox alignment="CENTER" spacing="10.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="btnVolver" mnemonicParsing="false" onAction="#onVolver" prefWidth="200.0" style="-fx-font-size: 14px;" text="Volver al Menú" />
+         </children>
+         <padding>
+            <Insets bottom="12.0" top="10.0" />
+         </padding>
+      </HBox>
+   </bottom>
+</BorderPane>

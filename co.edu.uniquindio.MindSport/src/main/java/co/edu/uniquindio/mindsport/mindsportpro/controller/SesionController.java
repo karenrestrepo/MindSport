@@ -11,6 +11,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.concurrent.Task;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -150,7 +152,7 @@ public class SesionController {
         tcObservaciones.setCellValueFactory(s -> new SimpleStringProperty(s.getValue().getObservacionCoach() == null ? "" : s.getValue().getObservacionCoach()));
 
         // cargar datos
-        refreshTabla();
+        refreshTablaAsync();
 
         // seleccion -> cargar formulario
         tableSesion.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
@@ -200,7 +202,7 @@ public class SesionController {
         s.setObservacionCoach(txtaObservaciones.getText().trim());
 
         sesionDAO.crear(s);
-        refreshTabla();
+        refreshTablaAsync();
         limpiarCampos();
 
         // notificar al principal que hay cambios (si aplica)
@@ -221,7 +223,7 @@ public class SesionController {
 
         boolean ok = sesionDAO.actualizar(sel);
         if (!ok) mostrarAlerta("No fue posible actualizar la sesión.");
-        refreshTabla();
+        refreshTablaAsync();
     }
 
     @FXML
@@ -229,7 +231,7 @@ public class SesionController {
         Sesion sel = tableSesion.getSelectionModel().getSelectedItem();
         if (sel == null) { mostrarAlerta("Seleccione una sesión para eliminar."); return; }
         sesionDAO.eliminar(sel);
-        refreshTabla();
+        refreshTablaAsync();
         limpiarCampos();
     }
 
@@ -241,8 +243,20 @@ public class SesionController {
 
     // =============== Helpers / Integración con MindSportController ===============
 
-    private void refreshTabla() {
-        listaSesiones.setAll(sesionDAO.listar());
+    private void refreshTablaAsync() {
+        Task<ObservableList<Sesion>> task = new Task<>() {
+            @Override
+            protected ObservableList<Sesion> call() {
+                return FXCollections.observableArrayList(sesionDAO.listar());
+            }
+        };
+
+        task.setOnSucceeded(e -> listaSesiones.setAll(task.getValue()));
+        task.setOnFailed(e -> {
+            Throwable ex = task.getException();
+            System.err.println("[SesionController] Error al cargar sesiones: " + (ex != null ? ex.getMessage() : ""));
+        });
+        new Thread(task, "cargar-sesiones").start();
     }
 
     private void cargarSesionEnFormulario(Sesion s) {
@@ -310,7 +324,7 @@ public class SesionController {
         listaRutinas.setAll(rutinaDAO.listar());
         cbRutina.setItems(listaRutinas);
 
-        refreshTabla();
+        refreshTablaAsync();
     }
 
     @FXML

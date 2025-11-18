@@ -1,4 +1,4 @@
-package co.edu.uniquindio.mindsport.mindsportpro.controller;
+﻿package co.edu.uniquindio.mindsport.mindsportpro.controller;
 
 import co.edu.uniquindio.mindsport.mindsportpro.model.Usuario;
 import co.edu.uniquindio.mindsport.mindsportpro.util.SessionManager;
@@ -28,36 +28,38 @@ public class MenuPrincipalController {
     @FXML
     void initialize() {
         Usuario usuario = SessionManager.getInstance().getUsuarioActual();
-        
+
         if (usuario == null) {
-            System.err.println("❌ Error: No hay usuario en sesión");
+            System.err.println("Error: No hay usuario en sesion");
             return;
         }
 
-        // Mensaje de bienvenida
         lblBienvenida.setText("Bienvenido, " + usuario.getNombres() + " " + usuario.getApellidos());
-
-        // Cargar botones según el rol
         cargarOpcionesSegunRol(usuario.getRol());
-        
-        System.out.println("📋 Menú Principal cargado para rol: " + usuario.getRol());
+        System.out.println("Menu Principal cargado para rol: " + usuario.getRol());
     }
 
     private void cargarOpcionesSegunRol(Integer rol) {
         vboxOpciones.getChildren().clear();
 
         if (rol == null) {
-            System.err.println("⚠️ Usuario sin rol definido");
+            System.err.println("Usuario sin rol definido");
             return;
         }
 
         if (rol == 2) { // COACH - ve todo
-            agregarBoton("Gestión de Usuarios", this::abrirUsuarios);
-            agregarBoton("Gestión de Rutinas", this::abrirRutinas);
-            agregarBoton("Gestión de Ejercicios", this::abrirEjercicios);
-            agregarBoton("Gestión de Sesiones", this::abrirSesiones);
-        } else if (rol == 1) { // ATLETA - solo sesiones
+            agregarBoton("Gestion de Usuarios", this::abrirUsuarios);
+            agregarBoton("Gestion de Rutinas", this::abrirRutinas);
+            agregarBoton("Gestion de Ejercicios", this::abrirEjercicios);
+            agregarBoton("Gestion de Sesiones", this::abrirSesiones);
+            agregarBoton("Reporte Rutinas Mas Usadas", this::abrirReporteRutinas);
+            agregarBoton("Composicion de Rutinas", this::abrirReporteRutinasDetalle);
+            agregarBoton("Actividad Mensual", this::abrirActividadMensual);
+        } else if (rol == 1) { // ATLETA
             agregarBoton("Mis Sesiones", this::abrirSesiones);
+            agregarBoton("Mi Reporte Resumen", this::abrirReporteResumen);
+            agregarBoton("Reporte Rutinas Mas Usadas", this::abrirReporteRutinas);
+            agregarBoton("Composicion de Rutinas", this::abrirReporteRutinasDetalle);
         }
     }
 
@@ -71,38 +73,54 @@ public class MenuPrincipalController {
     }
 
     private void abrirUsuarios() {
-        navegarA("Usuario.fxml", "Gestión de Usuarios");
+        navegarA("Usuario.fxml", "Gestion de Usuarios");
     }
 
     private void abrirRutinas() {
-        navegarA("Rutina.fxml", "Gestión de Rutinas");
+        navegarA("Rutina.fxml", "Gestion de Rutinas");
     }
 
     private void abrirEjercicios() {
-        navegarA("Ejercicio.fxml", "Gestión de Ejercicios");
+        navegarA("Ejercicio.fxml", "Gestion de Ejercicios");
     }
 
     private void abrirSesiones() {
-        navegarA("Sesion.fxml", "Gestión de Sesiones");
+        navegarA("Sesion.fxml", "Gestion de Sesiones");
+    }
+
+    private void abrirReporteResumen() {
+        navegarA("ReporteResumen.fxml", "Reporte Resumen");
+    }
+
+    private void abrirReporteRutinas() {
+        navegarA("ReporteRutinas.fxml", "Reporte Rutinas Mas Usadas");
+    }
+
+    private void abrirReporteRutinasDetalle() {
+        navegarA("ReporteRutinasDetalle.fxml", "Composicion Detallada de Rutinas");
+    }
+
+    private void abrirActividadMensual() {
+        navegarA("ReporteActividadMensual.fxml", "Actividad Mensual");
     }
 
     private void navegarA(String fxml, String titulo) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/co/edu/uniquindio/mindsport/mindsportpro/" + fxml));
             Parent root = loader.load();
-            
+
             Stage stage = SessionManager.getInstance().getStagePrincipal();
             if (stage == null) {
-                System.err.println("❌ Error: Stage principal no encontrado en SessionManager");
+                System.err.println("Error: Stage principal no encontrado en SessionManager");
                 return;
             }
             Scene scene = new Scene(root, 700, 720);
             stage.setScene(scene);
             stage.setTitle(titulo + " - MindSport Pro");
-            
-            System.out.println("➡️ Navegando a: " + titulo);
+
+            System.out.println("Navegando a: " + titulo);
         } catch (IOException e) {
-            System.err.println("❌ Error al cargar " + fxml + ": " + e.getMessage());
+            System.err.println("Error al cargar " + fxml + ": " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -110,24 +128,20 @@ public class MenuPrincipalController {
     @FXML
     void onCerrarSesion(ActionEvent event) {
         try {
-            // Limpiar sesión
             SessionManager.getInstance().logout();
-            
-            // Volver al login
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/co/edu/uniquindio/mindsport/mindsportpro/Login.fxml"));
             Parent root = loader.load();
-            
+
             Stage stage = SessionManager.getInstance().getStagePrincipal();
             Scene scene = new Scene(root, 450, 350);
             stage.setScene(scene);
             stage.setTitle("MindSport Pro - Login");
-            
-            System.out.println("🚪 Sesión cerrada");
+
+            System.out.println("Sesion cerrada");
         } catch (IOException e) {
-            System.err.println("❌ Error al cerrar sesión: " + e.getMessage());
+            System.err.println("Error al cerrar sesion: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
 }
-
