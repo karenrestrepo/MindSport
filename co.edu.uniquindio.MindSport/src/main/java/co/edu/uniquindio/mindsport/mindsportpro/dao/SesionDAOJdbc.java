@@ -65,6 +65,27 @@ public class SesionDAOJdbc {
         return lista;
     }
 
+    /** Listar sesiones filtradas por cédula de atleta */
+    public List<Sesion> listarPorAtleta(String cedulaAtleta) {
+        if (cedulaAtleta == null || cedulaAtleta.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Sesion> lista = new ArrayList<>();
+        String sql = "SELECT id, cedulaAtleta, rutinaId, fecha, duracionReal, puntuacion, observacionCoach FROM Sesion WHERE cedulaAtleta = ? ORDER BY id DESC";
+        try (Connection cn = DBUtil.getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setString(1, cedulaAtleta);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
     /** Buscar por id */
     public Optional<Sesion> buscarPorId(Integer id) {
         if (id == null) return Optional.empty();

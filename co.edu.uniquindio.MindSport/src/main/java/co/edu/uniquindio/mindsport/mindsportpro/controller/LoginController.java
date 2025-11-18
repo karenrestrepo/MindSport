@@ -58,7 +58,7 @@ public class LoginController {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/co/edu/uniquindio/mindsport/mindsportpro/MenuPrincipal.fxml"));
                 Parent root = loader.load();
-                Scene scene = new Scene(root, 600, 500);
+                Scene scene = new Scene(root, 600, 600);
                 stage.setScene(scene);
                 stage.setTitle("Menú Principal - MindSport Pro");
                 

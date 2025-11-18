@@ -1,4 +1,4 @@
-﻿package co.edu.uniquindio.mindsport.mindsportpro.controller;
+package co.edu.uniquindio.mindsport.mindsportpro.controller;
 
 import co.edu.uniquindio.mindsport.mindsportpro.dao.ActividadMensualDAOJdbc;
 import co.edu.uniquindio.mindsport.mindsportpro.model.ActividadMensual;

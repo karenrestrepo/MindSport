@@ -54,6 +54,10 @@ public class SesionController {
     private final ObservableList<Atleta> listaAtletas = FXCollections.observableArrayList();
     private final ObservableList<Rutina> listaRutinas = FXCollections.observableArrayList();
 
+    // Mapas para búsquedas rápidas (evitan consultas repetidas a la BD)
+    private java.util.Map<String, Usuario> mapaUsuariosPorCedula = new java.util.HashMap<>();
+    private java.util.Map<Integer, Rutina> mapaRutinasPorId = new java.util.HashMap<>();
+
     // referencia al controlador principal (opcional, para integración)
     private MindSportController controladorPrincipal;
 
@@ -61,13 +65,22 @@ public class SesionController {
     void initialize() {
         System.out.println("🔧 Inicializando SesionController...");
 
-        // ✅ Cargar combos: atletas y rutinas
-        List<Atleta> atletas = usuarioDAO.listar().stream()
+        // ✅ Cargar combos: atletas y rutinas (una sola vez)
+        List<Usuario> todosUsuarios = usuarioDAO.listar();
+        List<Atleta> atletas = todosUsuarios.stream()
                 .filter(u -> u instanceof Atleta)
                 .map(u -> (Atleta) u)
                 .collect(Collectors.toList());
         listaAtletas.setAll(atletas);
         cbAtleta.setItems(listaAtletas);
+
+        // ✅ Cargar mapa de usuarios por cédula (para búsquedas rápidas)
+        mapaUsuariosPorCedula.clear();
+        for (Usuario u : todosUsuarios) {
+            if (u.getCedula() != null) {
+                mapaUsuariosPorCedula.put(u.getCedula(), u);
+            }
+        }
 
         // ✅ Configurar cómo se muestra el atleta en el ComboBox
         cbAtleta.setCellFactory(param -> new ListCell<Atleta>() {
@@ -94,9 +107,18 @@ public class SesionController {
             }
         });
 
-        // ✅ Cargar rutinas
-        listaRutinas.setAll(rutinaDAO.listar());
+        // ✅ Cargar rutinas (una sola vez)
+        List<Rutina> todasRutinas = rutinaDAO.listar();
+        listaRutinas.setAll(todasRutinas);
         cbRutina.setItems(listaRutinas);
+
+        // ✅ Cargar mapa de rutinas por ID (para búsquedas rápidas)
+        mapaRutinasPorId.clear();
+        for (Rutina r : todasRutinas) {
+            if (r.getId() != null) {
+                mapaRutinasPorId.put(r.getId(), r);
+            }
+        }
 
         // ✅ Configurar cómo se muestra la rutina en el ComboBox
         cbRutina.setCellFactory(param -> new ListCell<Rutina>() {
@@ -126,21 +148,23 @@ public class SesionController {
         // configurar columnas de la tabla
         tcIdSesion.setCellValueFactory(s -> new SimpleStringProperty(s.getValue().getId() == null ? "" : String.valueOf(s.getValue().getId())));
 
+        // ✅ OPTIMIZADO: Usar mapa en memoria en lugar de consultar BD por cada fila
         tcAtleta.setCellValueFactory(s -> {
             String ced = s.getValue().getCedulaAtleta();
             String nombre = "";
             if (ced != null) {
-                Usuario u = usuarioDAO.listar().stream().filter(x -> ced.equals(x.getCedula())).findFirst().orElse(null);
+                Usuario u = mapaUsuariosPorCedula.get(ced);
                 if (u != null) nombre = u.getNombres() + " " + u.getApellidos();
             }
             return new SimpleStringProperty(nombre);
         });
 
+        // ✅ OPTIMIZADO: Usar mapa en memoria en lugar de consultar BD por cada fila
         tcRutina.setCellValueFactory(s -> {
             Integer idRut = s.getValue().getRutinaId();
             String t = "";
             if (idRut != null) {
-                Rutina r = rutinaDAO.listar().stream().filter(x -> idRut.equals(x.getId())).findFirst().orElse(null);
+                Rutina r = mapaRutinasPorId.get(idRut);
                 if (r != null) t = r.getTitulo();
             }
             return new SimpleStringProperty(t);
@@ -169,8 +193,9 @@ public class SesionController {
                 if (s.getCedulaAtleta() != null && s.getCedulaAtleta().toLowerCase().contains(f)) return true;
                 if (s.getFecha() != null && s.getFecha().toString().contains(f)) return true;
                 if (s.getObservacionCoach() != null && s.getObservacionCoach().toLowerCase().contains(f)) return true;
+                // ✅ OPTIMIZADO: Usar mapa en lugar de consultar BD
                 if (s.getRutinaId() != null) {
-                    Rutina r = rutinaDAO.listar().stream().filter(x -> s.getRutinaId().equals(x.getId())).findFirst().orElse(null);
+                    Rutina r = mapaRutinasPorId.get(s.getRutinaId());
                     if (r != null && r.getTitulo() != null && r.getTitulo().toLowerCase().contains(f)) return true;
                 }
                 return false;
@@ -181,6 +206,25 @@ public class SesionController {
         sortedData.comparatorProperty().bind(tableSesion.comparatorProperty());
         tableSesion.setItems(sortedData);
 
+        // ✅ Restricciones según rol del usuario
+        Usuario usuarioActual = SessionManager.getInstance().getUsuarioActual();
+        if (usuarioActual != null && usuarioActual.getRol() != null && usuarioActual.getRol() == 1) {
+            // Si es Atleta, deshabilitar combo de atletas y seleccionar automáticamente su cédula
+            cbAtleta.setDisable(true);
+            Atleta atletaActual = atletas.stream()
+                    .filter(a -> usuarioActual.getCedula().equals(a.getCedula()))
+                    .findFirst()
+                    .orElse(null);
+            if (atletaActual != null) {
+                cbAtleta.setValue(atletaActual);
+            }
+            System.out.println("🔒 [SesionController] Modo Atleta: combo de atletas deshabilitado");
+        } else {
+            // Si es Coach, el combo de atletas está habilitado
+            cbAtleta.setDisable(false);
+            System.out.println("👨‍💼 [SesionController] Modo Coach: puede gestionar sesiones de todos los atletas");
+        }
+
         System.out.println("✅ SesionController inicializado");
         System.out.println("   ✓ Atletas cargados: " + atletas.size());
         System.out.println("   ✓ Rutinas cargadas: " + listaRutinas.size());
@@ -190,11 +234,39 @@ public class SesionController {
 
     @FXML
     void onAgregarSesion(ActionEvent event) {
-        if (cbAtleta.getValue() == null) { mostrarAlerta("Seleccione un atleta."); return; }
-        if (cbRutina.getValue() == null) { mostrarAlerta("Seleccione una rutina."); return; }
+        Usuario usuarioActual = SessionManager.getInstance().getUsuarioActual();
+        if (usuarioActual == null) {
+            mostrarAlerta("No hay usuario en sesión.");
+            return;
+        }
+
+        // Validar selección de atleta
+        String cedulaAtletaSeleccionada = null;
+        if (cbAtleta.getValue() != null) {
+            cedulaAtletaSeleccionada = cbAtleta.getValue().getCedula();
+        }
+
+        // Si es Atleta, solo puede crear sesiones para sí mismo
+        if (usuarioActual.getRol() != null && usuarioActual.getRol() == 1) {
+            if (cedulaAtletaSeleccionada == null || !cedulaAtletaSeleccionada.equals(usuarioActual.getCedula())) {
+                mostrarAlerta("Solo puedes crear sesiones para ti mismo.");
+                return;
+            }
+        } else {
+            // Si es Coach, debe seleccionar un atleta
+            if (cedulaAtletaSeleccionada == null) {
+                mostrarAlerta("Seleccione un atleta.");
+                return;
+            }
+        }
+
+        if (cbRutina.getValue() == null) {
+            mostrarAlerta("Seleccione una rutina.");
+            return;
+        }
 
         Sesion s = new Sesion();
-        s.setCedulaAtleta(cbAtleta.getValue().getCedula());
+        s.setCedulaAtleta(cedulaAtletaSeleccionada);
         s.setRutinaId(cbRutina.getValue().getId());
         s.setFecha(dpFechaSesion.getValue() == null ? LocalDate.now() : dpFechaSesion.getValue());
         s.setDuracionReal(parseInteger(txtDuracionSesion.getText().trim()));
@@ -212,24 +284,69 @@ public class SesionController {
     @FXML
     void onActualizarSesion(ActionEvent event) {
         Sesion sel = tableSesion.getSelectionModel().getSelectedItem();
-        if (sel == null) { mostrarAlerta("Seleccione una sesión para actualizar."); return; }
+        if (sel == null) {
+            mostrarAlerta("Seleccione una sesión para actualizar.");
+            return;
+        }
 
-        if (cbAtleta.getValue() != null) sel.setCedulaAtleta(cbAtleta.getValue().getCedula());
-        if (cbRutina.getValue() != null) sel.setRutinaId(cbRutina.getValue().getId());
+        Usuario usuarioActual = SessionManager.getInstance().getUsuarioActual();
+        if (usuarioActual == null) {
+            mostrarAlerta("No hay usuario en sesión.");
+            return;
+        }
+
+        // Si es Atleta, solo puede actualizar sus propias sesiones
+        if (usuarioActual.getRol() != null && usuarioActual.getRol() == 1) {
+            if (sel.getCedulaAtleta() == null || !sel.getCedulaAtleta().equals(usuarioActual.getCedula())) {
+                mostrarAlerta("Solo puedes actualizar tus propias sesiones.");
+                return;
+            }
+            // Asegurar que la cédula no cambie
+            sel.setCedulaAtleta(usuarioActual.getCedula());
+        } else {
+            // Si es Coach, puede cambiar el atleta
+            if (cbAtleta.getValue() != null) {
+                sel.setCedulaAtleta(cbAtleta.getValue().getCedula());
+            }
+        }
+
+        if (cbRutina.getValue() != null) {
+            sel.setRutinaId(cbRutina.getValue().getId());
+        }
         sel.setFecha(dpFechaSesion.getValue());
         sel.setDuracionReal(parseInteger(txtDuracionSesion.getText().trim()));
         sel.setPuntuacion(parseDouble(txtPuntuacionSesion.getText().trim()));
         sel.setObservacionCoach(txtaObservaciones.getText().trim());
 
         boolean ok = sesionDAO.actualizar(sel);
-        if (!ok) mostrarAlerta("No fue posible actualizar la sesión.");
+        if (!ok) {
+            mostrarAlerta("No fue posible actualizar la sesión.");
+        }
         refreshTablaAsync();
     }
 
     @FXML
     void onEliminararSesion(ActionEvent event) {
         Sesion sel = tableSesion.getSelectionModel().getSelectedItem();
-        if (sel == null) { mostrarAlerta("Seleccione una sesión para eliminar."); return; }
+        if (sel == null) {
+            mostrarAlerta("Seleccione una sesión para eliminar.");
+            return;
+        }
+
+        Usuario usuarioActual = SessionManager.getInstance().getUsuarioActual();
+        if (usuarioActual == null) {
+            mostrarAlerta("No hay usuario en sesión.");
+            return;
+        }
+
+        // Si es Atleta, solo puede eliminar sus propias sesiones
+        if (usuarioActual.getRol() != null && usuarioActual.getRol() == 1) {
+            if (sel.getCedulaAtleta() == null || !sel.getCedulaAtleta().equals(usuarioActual.getCedula())) {
+                mostrarAlerta("Solo puedes eliminar tus propias sesiones.");
+                return;
+            }
+        }
+
         sesionDAO.eliminar(sel);
         refreshTablaAsync();
         limpiarCampos();
@@ -247,7 +364,30 @@ public class SesionController {
         Task<ObservableList<Sesion>> task = new Task<>() {
             @Override
             protected ObservableList<Sesion> call() {
-                return FXCollections.observableArrayList(sesionDAO.listar());
+                // Obtener usuario actual de la sesión
+                Usuario usuarioActual = SessionManager.getInstance().getUsuarioActual();
+                
+                if (usuarioActual == null) {
+                    System.err.println("[SesionController] No hay usuario en sesión");
+                    return FXCollections.observableArrayList();
+                }
+                
+                Integer rol = usuarioActual.getRol();
+                List<Sesion> sesiones;
+                
+                // Si es Atleta (rol 1), filtrar por su cédula
+                if (rol != null && rol == 1) {
+                    String cedulaAtleta = usuarioActual.getCedula();
+                    sesiones = sesionDAO.listarPorAtleta(cedulaAtleta);
+                    System.out.println("🔍 [SesionController] Filtrando sesiones para Atleta: " + cedulaAtleta + " (" + sesiones.size() + " sesiones)");
+                } 
+                // Si es Coach (rol 2) o cualquier otro rol, mostrar todas las sesiones
+                else {
+                    sesiones = sesionDAO.listar();
+                    System.out.println("👁️ [SesionController] Mostrando todas las sesiones para Coach (" + sesiones.size() + " sesiones)");
+                }
+                
+                return FXCollections.observableArrayList(sesiones);
             }
         };
 
@@ -314,15 +454,33 @@ public class SesionController {
     // llamado por el controlador principal cuando hay cambios externos (usuarios/rutinas/ejercicios)
     public void actualizarDatosExternos() {
         // recargar listas fuente
-        List<Atleta> atletas = usuarioDAO.listar().stream()
+        List<Usuario> todosUsuarios = usuarioDAO.listar();
+        List<Atleta> atletas = todosUsuarios.stream()
                 .filter(u -> u instanceof Atleta)
                 .map(u -> (Atleta) u)
                 .collect(Collectors.toList());
         listaAtletas.setAll(atletas);
         cbAtleta.setItems(listaAtletas);
 
-        listaRutinas.setAll(rutinaDAO.listar());
+        // ✅ Recargar mapa de usuarios
+        mapaUsuariosPorCedula.clear();
+        for (Usuario u : todosUsuarios) {
+            if (u.getCedula() != null) {
+                mapaUsuariosPorCedula.put(u.getCedula(), u);
+            }
+        }
+
+        List<Rutina> todasRutinas = rutinaDAO.listar();
+        listaRutinas.setAll(todasRutinas);
         cbRutina.setItems(listaRutinas);
+
+        // ✅ Recargar mapa de rutinas
+        mapaRutinasPorId.clear();
+        for (Rutina r : todasRutinas) {
+            if (r.getId() != null) {
+                mapaRutinasPorId.put(r.getId(), r);
+            }
+        }
 
         refreshTablaAsync();
     }
