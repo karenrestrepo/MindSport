@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane prefHeight="350.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.mindsport.mindsportpro.controller.LoginController">
+   <children>
+      <VBox alignment="CENTER" layoutX="75.0" layoutY="50.0" prefHeight="250.0" prefWidth="300.0" spacing="15.0">
+         <children>
+            <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="MindSport Pro" />
+            <Label text="Iniciar Sesión" />
+            
+            <VBox spacing="5.0">
+               <children>
+                  <Label text="Cédula:" />
+                  <TextField fx:id="txtCedula" promptText="Ingrese su cédula" />
+               </children>
+            </VBox>
+            
+            <VBox spacing="5.0">
+               <children>
+                  <Label text="Contraseña:" />
+                  <PasswordField fx:id="txtContrasena" promptText="Ingrese su contraseña" />
+               </children>
+            </VBox>
+            
+            <Label fx:id="lblError" style="-fx-text-fill: red;" visible="false" />
+            
+            <Button fx:id="btnLogin" onAction="#onLogin" prefWidth="150.0" text="Iniciar Sesión" />
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+      </VBox>
+   </children>
+</AnchorPane>
+
+

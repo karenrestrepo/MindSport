@@ -85,5 +85,6 @@
             </AnchorPane>
          </items>
       </SplitPane>
+      <Button fx:id="btnVolverMenu" layoutX="14.0" layoutY="606.0" mnemonicParsing="false" onAction="#onVolverMenu" style="-fx-font-size: 14px;" text="⬅ Volver al Menú" />
    </children>
 </AnchorPane>

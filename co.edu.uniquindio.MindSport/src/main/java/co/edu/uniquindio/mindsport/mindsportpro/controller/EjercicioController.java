@@ -11,7 +11,13 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
+import co.edu.uniquindio.mindsport.mindsportpro.util.SessionManager;
+import java.io.IOException;
 
 public class EjercicioController {
 
@@ -198,12 +204,33 @@ public class EjercicioController {
         return s == null ? "" : s;
     }
 
+    @FXML
+    private Button btnVolverMenu;
+
     private MindSportController controladorPrincipal;
 
     // Método público para conectar
     public void setControladorPrincipal(MindSportController controlador) {
         this.controladorPrincipal = controlador;
         System.out.println("🔗 EjercicioController conectado al controlador principal");
+    }
+
+    @FXML
+    void onVolverMenu(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/co/edu/uniquindio/mindsport/mindsportpro/MenuPrincipal.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = SessionManager.getInstance().getStagePrincipal();
+            Scene scene = new Scene(root, 600, 500);
+            stage.setScene(scene);
+            stage.setTitle("Menú Principal - MindSport Pro");
+            
+            System.out.println("⬅️ Volviendo al menú principal");
+        } catch (IOException e) {
+            System.err.println("❌ Error al volver al menú: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
 }

@@ -396,5 +396,29 @@ public class UsuarioDAOJdbc {
         }
     }
 
+    /**
+     * Autentica un usuario por cédula y contraseña
+     * @param cedula cédula del usuario
+     * @param contrasena contraseña en texto plano
+     * @return Optional con el usuario si las credenciales son correctas
+     */
+    public Optional<Usuario> autenticar(String cedula, String contrasena) {
+        if (cedula == null || contrasena == null) {
+            return Optional.empty();
+        }
+        
+        Optional<Usuario> usuarioOpt = buscarPorCedula(cedula);
+        
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            // Validar contraseña en texto plano
+            if (contrasena.equals(usuario.getContrasena())) {
+                return usuarioOpt;
+            }
+        }
+        
+        return Optional.empty();
+    }
+
 }
 
